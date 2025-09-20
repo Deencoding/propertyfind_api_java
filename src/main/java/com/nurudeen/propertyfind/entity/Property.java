@@ -4,6 +4,7 @@ package com.nurudeen.propertyfind.entity;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "property" )
@@ -13,18 +14,44 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fullName;
+
+    @Column(nullable = false)
     private String description;
+
+    @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
     private String address;
+
+    @Column(nullable = false)
     private String city;
+
+    @Column(nullable = false)
     private String state;
+
+    @Column(nullable = false)
     private String country;
+
+    @Column(nullable = false)
     private BigDecimal pricePerYear;
     private int bedroom;
+
+    @Column(nullable = false)
     private int bathroom;
+
+    @Column(nullable = false)
     private double area; // square meters
+
     private boolean available = true;
+
+    @Column(unique = true, nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private LocalDate listedDate;
 
     @ManyToOne
     @JoinColumn(name = "provider_id")
@@ -140,5 +167,21 @@ public class Property {
 
     public void setProvider(User provider) {
         this.provider = provider;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getListedDate() {
+        return listedDate;
+    }
+
+    public void setListedDate(LocalDate listedDate) {
+        this.listedDate = listedDate;
     }
 }

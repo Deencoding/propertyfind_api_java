@@ -2,6 +2,7 @@ package com.nurudeen.propertyfind.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,12 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(unique = true, nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private LocalDate registeredDate;
 
     @Enumerated(EnumType.STRING)
     private UserEnum role;
@@ -74,5 +81,21 @@ public class User {
 
     public void setProperties(List<Property> properties) {
         this.properties = properties;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public void setRegisteredDate(LocalDate registeredDate) {
+        this.registeredDate = registeredDate;
     }
 }
