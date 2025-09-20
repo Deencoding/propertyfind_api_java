@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "property" )
@@ -44,6 +45,10 @@ public class Property {
 
     @Column(nullable = false)
     private double area; // square meters
+
+    @ElementCollection
+    @Column(nullable = false)
+    private List<String> imageUrls; // Multiple image links
 
     private boolean available = true;
 
@@ -183,5 +188,13 @@ public class Property {
 
     public void setListedDate(LocalDate listedDate) {
         this.listedDate = listedDate;
+    }
+
+    public List<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }
