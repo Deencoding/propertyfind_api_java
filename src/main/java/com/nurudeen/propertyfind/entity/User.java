@@ -29,6 +29,9 @@ public class User {
     @Column(nullable = false)
     private LocalDate registeredDate;
 
+    @Column(nullable = false)
+    private LocalDate updatedAt;
+
     @Enumerated(EnumType.STRING)
     private UserEnum role;
 
@@ -97,5 +100,13 @@ public class User {
 
     public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

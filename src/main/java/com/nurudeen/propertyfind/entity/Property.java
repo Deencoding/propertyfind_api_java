@@ -58,6 +58,9 @@ public class Property {
     @Column(nullable = false)
     private LocalDate listedDate;
 
+    @Column(nullable = false)
+    private LocalDate updatedAt;
+
     @ManyToOne
     @JoinColumn(name = "provider_id")
     private User provider;
@@ -196,5 +199,13 @@ public class Property {
 
     public void setImageUrls(List<String> imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public LocalDate getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
