@@ -22,9 +22,13 @@ public class UserCreateDto {
     @Size(min = 10, max = 15, message = "Phone Number must be between 10 and 15")
     private String phoneNumber;
 
+    // no args constructor needed for jpa
     public UserCreateDto() {
 
     }
+
+    // The all-args constructor is for developer convenience,
+    // letting you create fully initialized objects in one go.
 
     public UserCreateDto(String fullName, String email, String password, String phoneNumber) {
         this.fullName = fullName;
@@ -32,6 +36,10 @@ public class UserCreateDto {
         this.password = password;
         this.phoneNumber = phoneNumber;
     }
+
+
+    // Setters → For frameworks (like Jackson) to map incoming JSON → DTO object.
+    // Getters → For code (controller/service/repository) to read those values after the DTO is created.
 
     public String getFullName() {
         return fullName;
@@ -64,6 +72,9 @@ public class UserCreateDto {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    // The toString() method used to give a human-readable string representation of the object.
+    // can also be used in unit testing
 
     @Override
     public String toString() {

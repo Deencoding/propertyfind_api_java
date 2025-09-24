@@ -11,9 +11,14 @@ public class UserCreateResponseDto {
     private String phoneNumber;
     private LocalDate registeredDate;
 
+
+    // no args constructor, needed for jpa
+
     public  UserCreateResponseDto() {
 
     }
+
+    // all args constructor used service layer when mapping from an entity (User) to a DTO
 
     public UserCreateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDate registeredDate) {
         this.id = id;
@@ -22,6 +27,9 @@ public class UserCreateResponseDto {
         this.phoneNumber = phoneNumber;
         this.registeredDate = registeredDate;
     }
+
+    //  getters (because object → JSON requires reading values)
+    // Setters are optional, but usually included for flexibility.
 
     public Long getId() {
         return id;
@@ -62,6 +70,8 @@ public class UserCreateResponseDto {
     public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
     }
+
+    // to string method expose data as a human-readable string
 
     @Override
     public String toString() {
