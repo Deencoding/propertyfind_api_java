@@ -3,6 +3,7 @@ package com.nurudeen.propertyfind.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,23 +28,35 @@ public class User {
     private String phoneNumber;
 
     @Column(nullable = false)
-    private LocalDate registeredDate  = LocalDate.now();
+    private LocalDateTime registeredDate;
 
     @Column(nullable = false)
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
+
+    @Column(nullable = false)
+    private  boolean active = true;
 
     @Enumerated(EnumType.STRING)
     private UserEnum role = UserEnum.HOME_SEEKER; // default value
 
-    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
+    // use lazy fetch because we don't want load all properties every time we fetch a user
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Property> properties = new ArrayList<>();
 
-    public Long getId() {
-        return id;
+    @PrePersist
+    public void onCreate() {
+        registeredDate = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // only getter for id since it is set by the db
+    public Long getId() {
+        return id;
     }
 
     public String getFullName() {
@@ -62,12 +75,39 @@ public class User {
         this.email = email;
     }
 
+    // @JsonIgnore so it won’t leak in API responses
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    // use getter only for registered date and updated date
+    // both are set by the db
+    public LocalDateTime getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public UserEnum getRole() {
@@ -84,29 +124,5 @@ public class User {
 
     public void setProperties(List<Property> properties) {
         this.properties = properties;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public LocalDate getRegisteredDate() {
-        return registeredDate;
-    }
-
-    public void setRegisteredDate(LocalDate registeredDate) {
-        this.registeredDate = registeredDate;
-    }
-
-    public LocalDate getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDate updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
