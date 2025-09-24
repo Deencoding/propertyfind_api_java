@@ -27,13 +27,13 @@ public class User {
     private String phoneNumber;
 
     @Column(nullable = false)
-    private LocalDate registeredDate;
+    private LocalDate registeredDate  = LocalDate.now();
 
     @Column(nullable = false)
     private LocalDate updatedAt;
 
     @Enumerated(EnumType.STRING)
-    private UserEnum role;
+    private UserEnum role = UserEnum.HOME_SEEKER; // default value
 
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL)
     private List<Property> properties = new ArrayList<>();
