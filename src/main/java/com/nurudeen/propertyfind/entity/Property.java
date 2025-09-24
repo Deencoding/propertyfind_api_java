@@ -5,18 +5,16 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "property" )
+@Table(name = "properties" )
 public class Property {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private String fullName;
 
     @Column(nullable = false)
     private String description;
@@ -52,33 +50,36 @@ public class Property {
 
     private boolean available = true;
 
+    @Column(nullable = false)
+    private  boolean active = true;
+
     @Column(unique = true, nullable = false)
     private String phoneNumber;
 
     @Column(nullable = false)
-    private LocalDate listedDate;
+    private LocalDateTime listedDate;
 
     @Column(nullable = false)
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "provider_id")
     private User provider;
 
+    @PrePersist
+    public void onCreate() {
+        listedDate = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // only getter since the id is set automatically by the database
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public String getDescription() {
@@ -185,11 +186,11 @@ public class Property {
         this.phoneNumber = phoneNumber;
     }
 
-    public LocalDate getListedDate() {
+    public LocalDateTime getListedDate() {
         return listedDate;
     }
 
-    public void setListedDate(LocalDate listedDate) {
+    public void setListedDate(LocalDateTime listedDate) {
         this.listedDate = listedDate;
     }
 
@@ -201,11 +202,19 @@ public class Property {
         this.imageUrls = imageUrls;
     }
 
-    public LocalDate getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDate updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
