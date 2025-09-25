@@ -27,8 +27,8 @@ public class UserCreateDto {
 
     }
 
-    // The all-args constructor is for developer convenience,
-    // letting you create fully initialized objects in one go.
+    // The all-args constructor is for developer convenience
+    // letting you create fully initialized objects in one go
 
     public UserCreateDto(String fullName, String email, String password, String phoneNumber) {
         this.fullName = fullName;
