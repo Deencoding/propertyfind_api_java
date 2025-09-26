@@ -35,6 +35,8 @@ public class Property {
 
     @Column(nullable = false)
     private BigDecimal pricePerYear;
+
+    @Column(nullable = false)
     private int bedroom;
 
     @Column(nullable = false)
@@ -51,9 +53,6 @@ public class Property {
 
     @Column(nullable = false)
     private  boolean active = true;
-
-    @Column(unique = true, nullable = false)
-    private String phoneNumber;
 
     @Column(nullable = false)
     private LocalDateTime listedDate;
@@ -175,14 +174,6 @@ public class Property {
 
     public void setProvider(User provider) {
         this.provider = provider;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public LocalDateTime getListedDate() {
