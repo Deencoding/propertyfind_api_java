@@ -27,9 +27,14 @@ public class PropertyCreateResponseDto {
     private String providerFullName;
     private String providerPhoneNumber;
 
+    // no args constructor needed for jpa
+
     public PropertyCreateResponseDto(){
 
     }
+
+    // The all-args constructor is for developer convenience
+    // letting you create fully initialized objects in one go
 
     public PropertyCreateResponseDto(String providerPhoneNumber, String providerFullName, LocalDateTime updatedAt,
                                      LocalDateTime listedDate, boolean active, boolean available,
@@ -55,6 +60,10 @@ public class PropertyCreateResponseDto {
         this.description = description;
         this.id = id;
     }
+
+
+    // Setters → For frameworks (like Jackson) to map incoming JSON → DTO object.
+    // Getters → For code (controller/service/repository) to read those values after the DTO is created.
 
     public Long getId() {
         return id;
@@ -199,6 +208,8 @@ public class PropertyCreateResponseDto {
     public void setProviderPhoneNumber(String providerPhoneNumber) {
         this.providerPhoneNumber = providerPhoneNumber;
     }
+
+    // to string method expose data as a human-readable string
 
     @Override
     public String toString() {

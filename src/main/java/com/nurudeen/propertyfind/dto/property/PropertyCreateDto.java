@@ -49,9 +49,16 @@ public class PropertyCreateDto {
     private List<@NotBlank(message = "Image URL cannot be blank") String> imageUrls;
 
 
+    // no args constructor needed for jpa
+
     public PropertyCreateDto(){
 
     }
+
+
+    // The all-args constructor is for developer convenience
+    // letting you create fully initialized objects in one go
+
 
     public PropertyCreateDto(String description, String title, String address, String city, String state,
                              String country, BigDecimal pricePerYear, int bedroom, int bathroom, double area,
@@ -69,6 +76,10 @@ public class PropertyCreateDto {
         this.imageUrls = imageUrls;
 
     }
+
+
+    // Setters → For frameworks (like Jackson) to map incoming JSON → DTO object.
+    // Getters → For code (controller/service/repository) to read those values after the DTO is created.
 
     public String getDescription() {
         return description;
@@ -159,6 +170,7 @@ public class PropertyCreateDto {
     }
 
 
+    // to string method expose data as a human-readable string
 
     @Override
     public String toString() {
