@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "user")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class User {
 
     // use lazy fetch because we don't want load all properties every time we fetch a user
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Property> properties = new ArrayList<>();
+    private List<PropertyEntity> properties = new ArrayList<>();
 
     @PrePersist
     public void onCreate() {
@@ -117,11 +117,11 @@ public class User {
         this.role = role;
     }
 
-    public List<Property> getProperties() {
+    public List<PropertyEntity> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Property> properties) {
+    public void setProperties(List<PropertyEntity> properties) {
         this.properties = properties;
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "properties" )
-public class Property {
+public class PropertyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +62,7 @@ public class Property {
 
     @ManyToOne
     @JoinColumn(name = "provider_id")
-    private User provider;
+    private UserEntity provider;
 
     @PrePersist
     public void onCreate() {
@@ -168,11 +168,11 @@ public class Property {
         this.available = available;
     }
 
-    public User getProvider() {
+    public UserEntity getProvider() {
         return provider;
     }
 
-    public void setProvider(User provider) {
+    public void setProvider(UserEntity provider) {
         this.provider = provider;
     }
 
