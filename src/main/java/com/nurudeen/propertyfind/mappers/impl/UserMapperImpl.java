@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.mappers.impl;
 
 import com.nurudeen.propertyfind.dto.user.UserCreateDto;
+import com.nurudeen.propertyfind.dto.user.UserCreateResponseDto;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.mappers.Mapper;
 import org.modelmapper.ModelMapper;
@@ -20,5 +21,10 @@ public class UserMapperImpl implements Mapper<UserEntity, UserCreateDto> {
     @Override
     public UserEntity mapFrom(UserCreateDto userCreateDto) {
         return modelMapper.map(userCreateDto, UserEntity.class);
+    }
+
+    // mapping for response DTO
+    public UserCreateResponseDto mapToResponse(UserEntity userEntity) {
+        return modelMapper.map(userEntity, UserCreateResponseDto.class);
     }
 }
