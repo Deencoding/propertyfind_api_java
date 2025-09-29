@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class propertyUpdateDto {
+public class PropertyUpdateDto {
 
     @NotBlank(message = "Description is required")
     @Size(min = 2, max = 150, message = "Description must be between 2 and 150 characters")
@@ -50,7 +50,7 @@ public class propertyUpdateDto {
 
     // no args constructor needed for jpa
 
-    public propertyUpdateDto(){
+    public PropertyUpdateDto(){
 
     }
 
@@ -59,7 +59,7 @@ public class propertyUpdateDto {
     // letting you create fully initialized objects in one go
 
 
-    public propertyUpdateDto(String description, String title, String address, String city, String state,
+    public PropertyUpdateDto(String description, String title, String address, String city, String state,
                              String country, BigDecimal pricePerYear, int bedroom, int bathroom, double area,
                              List<String> imageUrls) {
         this.description = description;
