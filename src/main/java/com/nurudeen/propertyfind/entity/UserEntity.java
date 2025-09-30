@@ -36,7 +36,7 @@ public class UserEntity {
     private  boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    private UserEnum role = UserEnum.HOME_SEEKER; // default value
+    private UserEnum role; // user must set explicitly
 
     // use lazy fetch because we don't want load all properties every time we fetch a user
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
