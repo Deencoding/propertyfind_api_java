@@ -74,12 +74,13 @@ public class UserRepository {
 
     // update user
     public int update(UserEntity user) {
-        String sql = "UPDATE users SET full_name = ?, email = ?, password = ?, phone_number = ? WHERE id = ?";
+        String sql = "UPDATE users SET full_name = ?, email = ?, password = ?, phone_number = ?, active = ?, WHERE id = ?";
         return jdbcTemplate.update(sql,
                 user.getFullName(),
                 user.getEmail(),
                 user.getPassword(),
-                user.getPhoneNumber()
+                user.getPhoneNumber(),
+                user.isActive()
         );
     }
 
