@@ -52,9 +52,6 @@ public class PropertyEntity {
     private boolean available = true;
 
     @Column(nullable = false)
-    private  boolean active = true;
-
-    @Column(nullable = false)
     private LocalDateTime listedDate;
 
     @Column(nullable = false)
@@ -198,13 +195,5 @@ public class PropertyEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 }
