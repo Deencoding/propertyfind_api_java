@@ -1,7 +1,6 @@
 package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.user.UserCreateDto;
-import com.nurudeen.propertyfind.dto.user.UserCreateResponseDto;
 import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.dto.user.UserUpdateDto;
 import com.nurudeen.propertyfind.entity.UserEntity;
@@ -53,7 +52,7 @@ public class UserService {
 
      // update fields
      user.setFullName(dto.getFullName());
-     user.setEmail(dto.getPassword());
+     user.setEmail(dto.getEmail());
      user.setPhoneNumber(dto.getPhoneNumber());
      user.setPassword(dto.getPassword());
 
