@@ -1,9 +1,6 @@
 package com.nurudeen.propertyfind.service;
 
-import com.nurudeen.propertyfind.dto.user.UserCreateDto;
-import com.nurudeen.propertyfind.dto.user.UserCreateResponseDto;
-import com.nurudeen.propertyfind.dto.user.UserResponseDto;
-import com.nurudeen.propertyfind.dto.user.UserUpdateDto;
+import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.mappers.UserMapper;
 import com.nurudeen.propertyfind.repository.UserRepository;
@@ -49,7 +46,7 @@ public class UserService {
     }
 
     // update
-    public void updateUser(Long id, UserUpdateDto dto){
+    public UserUpdateResponseDto updateUser(Long id, UserUpdateDto dto){
      UserEntity user =  userRepository.findById(id)
              .orElseThrow(()-> new RuntimeException("User not found with id" + id));
 
@@ -60,6 +57,8 @@ public class UserService {
      user.setPassword(dto.getPassword());
 
      userRepository.update(user);
+
+     return userMapper.toUpdateResponse(user); // map updated entity -> response DTO
     }
 
     // delete
