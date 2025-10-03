@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.user.UserCreateDto;
+import com.nurudeen.propertyfind.dto.user.UserCreateResponseDto;
 import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.dto.user.UserUpdateDto;
 import com.nurudeen.propertyfind.entity.UserEntity;
@@ -21,7 +22,7 @@ public class UserService {
     }
 
     // create
-    public void createUser(UserCreateDto dto){
+    public UserCreateResponseDto createUser(UserCreateDto dto){
         // check if email already exists in the db
         Optional< UserEntity> existingUser = userRepository.findByEmail(dto.getEmail());
 
@@ -31,6 +32,8 @@ public class UserService {
 
         UserEntity user = userMapper.toEntity(dto);
         userRepository.save(user);
+
+        return userMapper.toCreateResponse(user); // map saved entity -> response DTO
     }
 
     // read all
