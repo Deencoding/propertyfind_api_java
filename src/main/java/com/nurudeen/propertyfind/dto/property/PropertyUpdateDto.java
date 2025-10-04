@@ -48,6 +48,8 @@ public class PropertyUpdateDto {
     @NotEmpty(message = "At least one image URL is required")
     private List<@NotBlank(message = "Image URL cannot be blank") String> imageUrls;
 
+    private boolean available;
+
     // no args constructor needed for jpa
 
     public PropertyUpdateDto(){
@@ -61,7 +63,7 @@ public class PropertyUpdateDto {
 
     public PropertyUpdateDto(String description, String title, String address, String city, String state,
                              String country, BigDecimal pricePerYear, int bedroom, int bathroom, double area,
-                             List<String> imageUrls) {
+                             List<String> imageUrls, boolean available) {
         this.description = description;
         this.title = title;
         this.address = address;
@@ -168,25 +170,31 @@ public class PropertyUpdateDto {
         this.imageUrls = imageUrls;
     }
 
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
 
     // to string method expose data as a human-readable string
 
     @Override
     public String toString() {
-        return "PropertyCreateDto{" +
+        return "PropertyUpdateDto{" +
                 "description='" + description + '\'' +
                 ", title='" + title + '\'' +
                 ", address='" + address + '\'' +
                 ", city='" + city + '\'' +
                 ", state='" + state + '\'' +
                 ", country='" + country + '\'' +
-                ", pricePerYear='" + pricePerYear + '\'' +
-                ", bedroom='" + bedroom + '\'' +
-                ", bathroom='" + bathroom + '\'' +
-                ", area='" + area + '\'' +
+                ", pricePerYear=" + pricePerYear +
+                ", bedroom=" + bedroom +
+                ", bathroom=" + bathroom +
+                ", area=" + area +
                 ", imageUrls=" + imageUrls +
+                ", available=" + available +
                 '}';
     }
-
-
 }
