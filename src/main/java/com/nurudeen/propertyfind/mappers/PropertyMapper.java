@@ -1,9 +1,6 @@
 package com.nurudeen.propertyfind.mappers;
 
-import com.nurudeen.propertyfind.dto.property.PropertyCreateDto;
-import com.nurudeen.propertyfind.dto.property.PropertyCreateResponseDto;
-import com.nurudeen.propertyfind.dto.property.PropertyUpdateDto;
-import com.nurudeen.propertyfind.dto.property.PropertyUpdateResponseDto;
+import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
 
 
@@ -35,6 +32,11 @@ public class PropertyMapper {
 
     public PropertyUpdateResponseDto toUpdateResponse(PropertyEntity entity){
         return modelMapper.map(entity, PropertyUpdateResponseDto.class);
+    }
+
+    // response
+    public PropertyResponseDto toResponse(PropertyEntity entity){
+        return modelMapper.map(entity, PropertyResponseDto.class);
     }
 
 }
