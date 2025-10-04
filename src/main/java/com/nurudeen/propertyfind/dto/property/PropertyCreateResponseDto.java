@@ -19,7 +19,6 @@ public class PropertyCreateResponseDto {
     private double area;
     private List<String> imageUrls;
     private boolean available;
-    private boolean active;
     private LocalDateTime listedDate;
     private LocalDateTime updatedAt;
 
@@ -37,7 +36,7 @@ public class PropertyCreateResponseDto {
     // letting you create fully initialized objects in one go
 
     public PropertyCreateResponseDto(String providerPhoneNumber, String providerFullName, LocalDateTime updatedAt,
-                                     LocalDateTime listedDate, boolean active, boolean available,
+                                     LocalDateTime listedDate, boolean available,
                                      List<String> imageUrls, double area, int bathroom, int bedroom,
                                      BigDecimal pricePerYear, String country, String state, String city,
                                      String address, String title, String description, Long id) {
@@ -45,7 +44,6 @@ public class PropertyCreateResponseDto {
         this.providerFullName = providerFullName;
         this.updatedAt = updatedAt;
         this.listedDate = listedDate;
-        this.active = active;
         this.available = available;
         this.imageUrls = imageUrls;
         this.area = area;
@@ -165,14 +163,6 @@ public class PropertyCreateResponseDto {
         this.available = available;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public LocalDateTime getListedDate() {
         return listedDate;
     }
@@ -223,7 +213,6 @@ public class PropertyCreateResponseDto {
                 ", area=" + area +
                 ", imageUrls=" + imageUrls +
                 ", available=" + available +
-                ", active=" + active +
                 ", listedDate=" + listedDate +
                 ", updatedAt=" + updatedAt +
                 ", providerFullName='" + providerFullName + '\'' +
