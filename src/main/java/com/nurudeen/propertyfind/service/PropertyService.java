@@ -4,9 +4,11 @@ import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
 import com.nurudeen.propertyfind.mappers.PropertyMapper;
 import com.nurudeen.propertyfind.repository.PropertyRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class PropertyService {
 
     private final PropertyRepository propertyRepository;
