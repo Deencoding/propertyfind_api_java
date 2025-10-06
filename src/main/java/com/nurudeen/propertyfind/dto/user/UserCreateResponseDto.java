@@ -1,6 +1,8 @@
 package com.nurudeen.propertyfind.dto.user;
 
 
+import com.nurudeen.propertyfind.entity.UserEnum;
+
 import java.time.LocalDate;
 
 public class UserCreateResponseDto {
@@ -10,6 +12,7 @@ public class UserCreateResponseDto {
     private String email;
     private String phoneNumber;
     private LocalDate registeredDate;
+    private UserEnum role;
 
 
     // no args constructor, needed for jpa
@@ -20,12 +23,13 @@ public class UserCreateResponseDto {
 
     // all args constructor used service layer when mapping from an entity (User) to a DTO
 
-    public UserCreateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDate registeredDate) {
+    public UserCreateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDate registeredDate, UserEnum role) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.registeredDate = registeredDate;
+        this.role = role;
     }
 
     //  getters (because object → JSON requires reading values)
@@ -71,6 +75,14 @@ public class UserCreateResponseDto {
         this.registeredDate = registeredDate;
     }
 
+    public UserEnum getRole() {
+        return role;
+    }
+
+    public void setRole(UserEnum role) {
+        this.role = role;
+    }
+
     // to string method expose data as a human-readable string
 
     @Override
@@ -81,6 +93,9 @@ public class UserCreateResponseDto {
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", registeredDate=" + registeredDate +
+                ", role=" + role +
                 '}';
     }
+
+
 }
