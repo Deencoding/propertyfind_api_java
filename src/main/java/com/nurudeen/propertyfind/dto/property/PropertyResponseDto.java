@@ -1,5 +1,7 @@
 package com.nurudeen.propertyfind.dto.property;
 
+import com.nurudeen.propertyfind.dto.user.UserResponseDto;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,26 +24,24 @@ public class PropertyResponseDto {
     private LocalDateTime listedDate;
     private LocalDateTime updatedAt;
 
-    // Provider details
-    private String providerFullName;
-    private String providerPhoneNumber;
+    // nested provider details
+    private UserResponseDto user;
+
 
     // no args constructor needed for jpa
 
-    public PropertyResponseDto(){
+    public PropertyResponseDto() {
 
     }
 
     // The all-args constructor is for developer convenience
     // letting you create fully initialized objects in one go
 
-    public PropertyResponseDto(String providerPhoneNumber, String providerFullName, LocalDateTime updatedAt,
-                                     LocalDateTime listedDate, boolean available,
-                                     List<String> imageUrls, double area, int bathroom, int bedroom,
-                                     BigDecimal pricePerYear, String country, String state, String city,
-                                     String address, String title, String description, Long id) {
-        this.providerPhoneNumber = providerPhoneNumber;
-        this.providerFullName = providerFullName;
+    public PropertyResponseDto(LocalDateTime updatedAt,
+                               LocalDateTime listedDate, boolean available,
+                               List<String> imageUrls, double area, int bathroom, int bedroom,
+                               BigDecimal pricePerYear, String country, String state, String city,
+                               String address, String title, String description, Long id) {
         this.updatedAt = updatedAt;
         this.listedDate = listedDate;
         this.available = available;
@@ -179,22 +179,6 @@ public class PropertyResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public String getProviderFullName() {
-        return providerFullName;
-    }
-
-    public void setProviderFullName(String providerFullName) {
-        this.providerFullName = providerFullName;
-    }
-
-    public String getProviderPhoneNumber() {
-        return providerPhoneNumber;
-    }
-
-    public void setProviderPhoneNumber(String providerPhoneNumber) {
-        this.providerPhoneNumber = providerPhoneNumber;
-    }
-
     // to string method expose data as a human-readable string
 
     @Override
@@ -215,8 +199,6 @@ public class PropertyResponseDto {
                 ", available=" + available +
                 ", listedDate=" + listedDate +
                 ", updatedAt=" + updatedAt +
-                ", providerFullName='" + providerFullName + '\'' +
-                ", providerPhoneNumber='" + providerPhoneNumber + '\'' +
                 '}';
     }
 }
