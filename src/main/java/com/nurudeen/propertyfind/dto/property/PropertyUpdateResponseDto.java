@@ -23,9 +23,6 @@ public class PropertyUpdateResponseDto {
     private LocalDateTime listedDate;
     private LocalDateTime updatedAt;
 
-    // Provider details
-    private String providerFullName;
-    private String providerPhoneNumber;
 
     // no args constructor needed for jpa
 
@@ -36,13 +33,11 @@ public class PropertyUpdateResponseDto {
     // The all-args constructor is for developer convenience
     // letting you create fully initialized objects in one go
 
-    public PropertyUpdateResponseDto(String providerPhoneNumber, String providerFullName, LocalDateTime updatedAt,
+    public PropertyUpdateResponseDto(LocalDateTime updatedAt,
                                      LocalDateTime listedDate, boolean active, boolean available,
                                      List<String> imageUrls, double area, int bathroom, int bedroom,
                                      BigDecimal pricePerYear, String country, String state, String city,
                                      String address, String title, String description, Long id) {
-        this.providerPhoneNumber = providerPhoneNumber;
-        this.providerFullName = providerFullName;
         this.updatedAt = updatedAt;
         this.listedDate = listedDate;
         this.active = active;
@@ -189,22 +184,6 @@ public class PropertyUpdateResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public String getProviderFullName() {
-        return providerFullName;
-    }
-
-    public void setProviderFullName(String providerFullName) {
-        this.providerFullName = providerFullName;
-    }
-
-    public String getProviderPhoneNumber() {
-        return providerPhoneNumber;
-    }
-
-    public void setProviderPhoneNumber(String providerPhoneNumber) {
-        this.providerPhoneNumber = providerPhoneNumber;
-    }
-
     // to string method expose data as a human-readable string
 
     @Override
@@ -226,8 +205,6 @@ public class PropertyUpdateResponseDto {
                 ", active=" + active +
                 ", listedDate=" + listedDate +
                 ", updatedAt=" + updatedAt +
-                ", providerFullName='" + providerFullName + '\'' +
-                ", providerPhoneNumber='" + providerPhoneNumber + '\'' +
                 '}';
     }
 }
