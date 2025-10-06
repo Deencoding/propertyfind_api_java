@@ -1,6 +1,8 @@
 package com.nurudeen.propertyfind.dto.user;
 
 
+import com.nurudeen.propertyfind.entity.UserEnum;
+
 import java.time.LocalDate;
 
 public class UserResponseDto {
@@ -9,9 +11,9 @@ public class UserResponseDto {
     private String fullName;
     private String email;
     private String phoneNumber;
-    private String role;
     private LocalDate registeredDate;
     private LocalDate updatedAt;
+    private UserEnum role;
 
 
     // no args constructor, needed for jpa
@@ -23,7 +25,7 @@ public class UserResponseDto {
     // all args constructor used service layer when mapping from an entity (User) to a DTO
 
     public UserResponseDto(Long id, String fullName, String email, String phoneNumber,
-                           LocalDate registeredDate, LocalDate updatedAt, String role) {
+                           LocalDate registeredDate, LocalDate updatedAt, UserEnum role) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -31,6 +33,7 @@ public class UserResponseDto {
         this.registeredDate = registeredDate;
         this.updatedAt = updatedAt;
         this.role = role;
+
     }
 
     //  getters (because object → JSON requires reading values)
@@ -80,15 +83,13 @@ public class UserResponseDto {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDate updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+    public void setUpdatedAt(LocalDate updatedAt) { this.updatedAt = updatedAt; }
 
-    public String getRole() {
+    public UserEnum getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserEnum role) {
         this.role = role;
     }
 
@@ -101,7 +102,6 @@ public class UserResponseDto {
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", role='" + role + '\'' +
                 ", registeredDate=" + registeredDate +
                 ", updatedAt=" + updatedAt +
                 '}';
