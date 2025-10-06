@@ -32,8 +32,8 @@ public class PropertyService {
         UserEntity provider = userRepository.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Provider not found with id " + providerId));
 
-        // Attach provider to property
-        property.setProvider(provider);
+
+        property.setProviderId(providerId);
 
         // Save property
         propertyRepository.save(property);
