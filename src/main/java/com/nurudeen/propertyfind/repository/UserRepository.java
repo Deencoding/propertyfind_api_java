@@ -18,33 +18,50 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // create
+    // CREATE
     public void save(UserEntity user) {
-        String sql = "INSERT INTO users(full_name, email, password, phone_number, role) " +
-                "VALUES(?,?,?,?,?)";
-        jdbcTemplate.update(sql, user.getFullName(), user.getEmail(), user.getPassword(),
-                user.getPhoneNumber(), user.getRole());
+        String sql = "INSERT INTO users (full_name, email, password, phone_number, role) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql,
+                user.getFullName(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getPhoneNumber(),
+                user.getRole().toString()
+        );
     }
 
-    // read all
+    // READ ALL
     public List<UserEntity> findAll() {
-        String sql ="SELECT id," +
-                    " full_name as fullName," +
-                    " email, password," +
-                    " phone_number as phoneNumber," +
-                    "registered_date as registeredDate," +
-                    " updated_at as updatedAt," +
-                    " active, " +
-                    "role" +
-                    " FROM users ";
+        String sql = """
+                SELECT id,
+                       full_name AS fullName,
+                       email,
+                       password,
+                       phone_number AS phoneNumber,
+                       registered_date AS registeredDate,
+                       updated_at AS updatedAt,
+                       active,
+                       role
+                FROM users
+                """;
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(UserEntity.class));
     }
 
-    //  read one
+    // READ ONE BY ID
     public Optional<UserEntity> findById(Long id) {
-        String sql = "SELECT id, full_name as fullName, email, password, phone_number as phoneNumber," +
-                "registered_date as registeredDate, updated_at as updatedAt, active, role FROM users " +
-                "WHERE id = ? ";
+        String sql = """
+                SELECT id,
+                       full_name AS fullName,
+                       email,
+                       password,
+                       phone_number AS phoneNumber,
+                       registered_date AS registeredDate,
+                       updated_at AS updatedAt,
+                       active,
+                       role
+                FROM users
+                WHERE id = ?
+                """;
         try {
             UserEntity user = jdbcTemplate.queryForObject(
                     sql,
@@ -57,11 +74,21 @@ public class UserRepository {
         }
     }
 
-    // read by email
+    // READ ONE BY EMAIL
     public Optional<UserEntity> findByEmail(String email) {
-        String sql = "SELECT id, full_name as fullName, email, password, phone_number as phoneNumber," +
-                "registered_date as registeredDate, updated_at as updatedAt, active, role FROM users " +
-                "WHERE email = ? ";
+        String sql = """
+                SELECT id,
+                       full_name AS fullName,
+                       email,
+                       password,
+                       phone_number AS phoneNumber,
+                       registered_date AS registeredDate,
+                       updated_at AS updatedAt,
+                       active,
+                       role
+                FROM users
+                WHERE email = ?
+                """;
         try {
             UserEntity user = jdbcTemplate.queryForObject(
                     sql,
@@ -74,22 +101,32 @@ public class UserRepository {
         }
     }
 
-    // update user
-    public int update(UserEntity user) {
-        String sql = "UPDATE users SET full_name = ?, email = ?, password = ?, phone_number = ?, active = ?, WHERE id = ?";
-        return jdbcTemplate.update(sql,
+    // UPDATE
+    public void update(UserEntity user) {
+        String sql = """
+                UPDATE users
+                SET full_name = ?,
+                    email = ?,
+                    password = ?,
+                    phone_number = ?,
+                    active = ?,
+                    role = ?
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(sql,
                 user.getFullName(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getPhoneNumber(),
-                user.isActive()
+                user.isActive(),
+                user.getRole().toString(),
+                user.getId()
         );
     }
 
-    // delete
-    public int delete(Long id) {
+    // DELETE
+    public void delete(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        return jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(sql, id);
     }
-
 }
