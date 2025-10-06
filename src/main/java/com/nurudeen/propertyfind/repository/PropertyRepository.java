@@ -4,23 +4,27 @@ import com.nurudeen.propertyfind.entity.PropertyEntity;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class PropertyRepository {
 
-    public JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public PropertyRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // create
+    // Create
     public void save(PropertyEntity property) {
-        String sql = "INSERT INTO properties (description, title, address, city, state, country, " +
-                "price_per_year, bedroom, bathroom, area, image_urls, provider_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO properties (" +
+                "description, title, address, city, state, country, " +
+                "price_per_year, bedroom, bathroom, area, image_urls, " +
+                "available, listed_date, updated_at, provider_id" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(sql,
                 property.getDescription(),
@@ -33,27 +37,35 @@ public class PropertyRepository {
                 property.getBedroom(),
                 property.getBathroom(),
                 property.getArea(),
-                property.getImageUrls().toArray(new String[0]), // map List<String> → String[]
-                property.getProvider() != null ? property.getProvider().getId() : null
+                String.join(",", property.getImageUrls()), // store as comma-separated text
+                property.isAvailable(),
+                property.getListedDate(),
+                property.getUpdatedAt(),
+                property.getProviderId()
         );
-
     }
 
-    // read all
+    // Read all
     public List<PropertyEntity> findAll() {
-        String sql = "SELECT id, description, title, address, city, state, country, " +
-                "price_per_year AS pricePerYear, bedroom, bathroom, area, image_urls AS imageUrls, " +
-                "available, active, listed_date AS listedDate, updated_at AS updatedAt, provider_id " +
+        String sql = "SELECT " +
+                "id, description, title, address, city, state, country, " +
+                "price_per_year as pricePerYear, bedroom, bathroom, area, " +
+                "image_urls, available, listed_date as listedDate, " +
+                "updated_at as updatedAt, provider_id as providerId " +
                 "FROM properties";
+
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PropertyEntity.class));
     }
 
-    // read one
+    // Read one
     public Optional<PropertyEntity> findById(Long id) {
-        String sql = "SELECT id, description, title, address, city, state, country, " +
-                "price_per_year AS pricePerYear, bedroom, bathroom, area, image_urls AS imageUrls, " +
-                "available, active, listed_date AS listedDate, updated_at AS updatedAt, provider_id " +
+        String sql = "SELECT " +
+                "id, description, title, address, city, state, country, " +
+                "price_per_year as pricePerYear, bedroom, bathroom, area, " +
+                "image_urls, available, listed_date as listedDate, " +
+                "updated_at as updatedAt, provider_id as providerId " +
                 "FROM properties WHERE id = ?";
+
         try {
             PropertyEntity property = jdbcTemplate.queryForObject(
                     sql,
@@ -66,11 +78,25 @@ public class PropertyRepository {
         }
     }
 
-    // update
+    // Read by provider ID
+    public List<PropertyEntity> findByProviderId(Long providerId) {
+        String sql = "SELECT " +
+                "id, description, title, address, city, state, country, " +
+                "price_per_year as pricePerYear, bedroom, bathroom, area, " +
+                "image_urls, available, listed_date as listedDate, " +
+                "updated_at as updatedAt, provider_id as providerId " +
+                "FROM properties WHERE provider_id = ?";
+
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PropertyEntity.class), providerId);
+    }
+
+    // Update
     public void update(PropertyEntity property) {
-        String sql = "UPDATE properties SET description = ?, title = ?, address = ?, city = ?, state = ?, " +
-                "country = ?, price_per_year = ?, bedroom = ?, bathroom = ?, area = ?, image_urls = ?, " +
-                "available = ?, WHERE id = ?";
+        String sql = "UPDATE properties SET " +
+                "description = ?, title = ?, address = ?, city = ?, state = ?, country = ?, " +
+                "price_per_year = ?, bedroom = ?, bathroom = ?, area = ?, image_urls = ?, " +
+                "available = ?, updated_at = ?, provider_id = ? WHERE id = ?";
+
         jdbcTemplate.update(sql,
                 property.getDescription(),
                 property.getTitle(),
@@ -82,14 +108,15 @@ public class PropertyRepository {
                 property.getBedroom(),
                 property.getBathroom(),
                 property.getArea(),
-                property.getImageUrls().toArray(new String[0]),
+                String.join(",", property.getImageUrls()),
                 property.isAvailable(),
-                property.getProvider() != null ? property.getProvider().getId() : null,
+                property.getUpdatedAt(),
+                property.getProviderId(),
                 property.getId()
         );
     }
 
-    // delete
+    // Delete
     public void delete(Long id) {
         String sql = "DELETE FROM properties WHERE id = ?";
         jdbcTemplate.update(sql, id);
