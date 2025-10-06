@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.dto.user;
 
 
+import com.nurudeen.propertyfind.entity.UserEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -22,6 +23,8 @@ public class UserCreateDto {
     @Size(min = 10, max = 15, message = "Phone Number must be between 10 and 15")
     private String phoneNumber;
 
+    private UserEnum role;
+
     // no args constructor needed for jpa
     public UserCreateDto() {
 
@@ -30,11 +33,12 @@ public class UserCreateDto {
     // The all-args constructor is for developer convenience
     // letting you create fully initialized objects in one go
 
-    public UserCreateDto(String fullName, String email, String password, String phoneNumber) {
+    public UserCreateDto(String fullName, String email, String password, String phoneNumber, UserEnum role) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
+        this.role = role;
     }
 
 
@@ -73,6 +77,10 @@ public class UserCreateDto {
         this.phoneNumber = phoneNumber;
     }
 
+    public UserEnum getRole() {
+        return role;
+    }
+
     // The toString() method used to give a human-readable string representation of the object.
     // can also be used in unit testing
 
@@ -81,7 +89,9 @@ public class UserCreateDto {
         return "UserCreateDto{" +
                 "fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", role=" + role +
                 '}';
     }
 }
