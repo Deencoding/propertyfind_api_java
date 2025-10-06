@@ -5,7 +5,9 @@ import com.nurudeen.propertyfind.entity.PropertyEntity;
 
 
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PropertyMapper {
 
     private final ModelMapper modelMapper;
