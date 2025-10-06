@@ -38,7 +38,7 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private UserEnum role; // user must set explicitly
 
-    // use lazy fetch because we don't want load all properties every time we fetch a user
+    // use lazy fetch because we don't want to load all properties every time we fetch a user
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PropertyEntity> properties = new ArrayList<>();
 
