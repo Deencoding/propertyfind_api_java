@@ -4,12 +4,10 @@ import com.nurudeen.propertyfind.entity.PropertyEntity;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public class PropertyRepository {
 
     public JdbcTemplate jdbcTemplate;
@@ -69,11 +67,11 @@ public class PropertyRepository {
     }
 
     // update
-    public int update(PropertyEntity property) {
+    public void update(PropertyEntity property) {
         String sql = "UPDATE properties SET description = ?, title = ?, address = ?, city = ?, state = ?, " +
                 "country = ?, price_per_year = ?, bedroom = ?, bathroom = ?, area = ?, image_urls = ?, " +
                 "available = ?, WHERE id = ?";
-        return jdbcTemplate.update(sql,
+        jdbcTemplate.update(sql,
                 property.getDescription(),
                 property.getTitle(),
                 property.getAddress(),
@@ -92,9 +90,8 @@ public class PropertyRepository {
     }
 
     // delete
-    public int delete(Long id) {
+    public void delete(Long id) {
         String sql = "DELETE FROM properties WHERE id = ?";
-        return jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(sql, id);
     }
 }
-
