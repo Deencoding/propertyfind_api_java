@@ -196,4 +196,7 @@ public class PropertyEntity {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public void setId(Long generatedId) {
+    }
 }
