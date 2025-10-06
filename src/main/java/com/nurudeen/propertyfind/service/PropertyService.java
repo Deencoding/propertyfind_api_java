@@ -1,9 +1,12 @@
 package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.property.*;
+import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.mappers.PropertyMapper;
 import com.nurudeen.propertyfind.repository.PropertyRepository;
+import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,20 +16,33 @@ public class PropertyService {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
+    private final UserRepository userRepository;
 
-    public PropertyService(PropertyRepository propertyRepository, PropertyMapper propertyMapper) {
+    public PropertyService(PropertyRepository propertyRepository, PropertyMapper propertyMapper, UserRepository userRepository) {
         this.propertyRepository = propertyRepository;
         this.propertyMapper = propertyMapper;
+        this.userRepository = userRepository;
     }
 
     // create
-    public PropertyCreateResponseDto createProperty(PropertyCreateDto dto){
+    public PropertyCreateResponseDto createProperty(Long providerId, PropertyCreateDto dto) {
         PropertyEntity property = propertyMapper.toEntity(dto);
+
+        // Fetch provider
+        UserEntity provider = userRepository.findById(providerId)
+                .orElseThrow(() -> new RuntimeException("Provider not found with id " + providerId));
+
+        // Attach provider to property
+        property.setProvider(provider);
+
+        // Save property
         propertyRepository.save(property);
 
-        return propertyMapper.toCreateResponse(property); // map saved entity to response
-
+        // Map to response
+        return propertyMapper.toCreateResponse(property);
     }
+
+
 
     // read all
     public List<PropertyResponseDto> getAllProperties(){
@@ -61,6 +77,7 @@ public class PropertyService {
         property.setCountry(dto.getCountry());
         property.setPricePerYear(dto.getPricePerYear());
 
+        // persist updates
         propertyRepository.update(property);
 
         return propertyMapper.toUpdateResponse(property); // map updated entity
@@ -68,9 +85,13 @@ public class PropertyService {
     }
 
     // delete
-    public void deleteProperty(Long id){
+    public void deleteProperty(Long id) {
+        // first verify the property exists
+        propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found with id " + id));
+
+        // delete
         propertyRepository.delete(id);
     }
-
 
 }
