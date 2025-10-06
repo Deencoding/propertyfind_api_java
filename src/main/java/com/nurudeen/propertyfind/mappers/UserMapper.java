@@ -4,8 +4,10 @@ package com.nurudeen.propertyfind.mappers;
 import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
 
+@Component
 public class UserMapper {
 
     private final ModelMapper modelMapper;
