@@ -4,6 +4,7 @@ package com.nurudeen.propertyfind.dto.user;
 import com.nurudeen.propertyfind.entity.UserEnum;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class UserCreateResponseDto {
 
@@ -11,7 +12,7 @@ public class UserCreateResponseDto {
     private String fullName;
     private String email;
     private String phoneNumber;
-    private LocalDate registeredDate;
+    private LocalDateTime registeredDate;
     private UserEnum role;
 
 
@@ -23,7 +24,7 @@ public class UserCreateResponseDto {
 
     // all args constructor used service layer when mapping from an entity (User) to a DTO
 
-    public UserCreateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDate registeredDate, UserEnum role) {
+    public UserCreateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDateTime registeredDate, UserEnum role) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -67,11 +68,11 @@ public class UserCreateResponseDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public LocalDate getRegisteredDate() {
+    public LocalDateTime getRegisteredDate() {
         return registeredDate;
     }
 
-    public void setRegisteredDate(LocalDate registeredDate) {
+    public void setRegisteredDate(LocalDateTime registeredDate) {
         this.registeredDate = registeredDate;
     }
 
