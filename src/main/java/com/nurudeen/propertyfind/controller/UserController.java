@@ -3,8 +3,6 @@ package com.nurudeen.propertyfind.controller;
 
 import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.service.UserService;
-import org.apache.catalina.User;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
