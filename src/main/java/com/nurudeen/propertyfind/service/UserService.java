@@ -55,20 +55,27 @@ public class UserService {
     }
 
     // update
-    public UserUpdateResponseDto updateUser(Long id, UserUpdateDto dto){
-     UserEntity user =  userRepository.findById(id)
-             .orElseThrow(()-> new RuntimeException("User not found with id" + id));
+    public UserUpdateResponseDto updateUser(Long id, UserUpdateDto dto) {
+        // Fetch the existing user
+        UserEntity existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-     // update fields
-     user.setFullName(dto.getFullName());
-     user.setEmail(dto.getEmail());
-     user.setPhoneNumber(dto.getPhoneNumber());
-     user.setPassword(dto.getPassword());
+        // Update only non-null fields from DTO
+        if (dto.getFullName() != null) existingUser.setFullName(dto.getFullName());
+        if (dto.getEmail() != null) existingUser.setEmail(dto.getEmail());
+        if (dto.getPassword() != null) existingUser.setPassword(dto.getPassword());
+        if (dto.getPhoneNumber() != null) existingUser.setPhoneNumber(dto.getPhoneNumber());
 
-     userRepository.update(user);
+        // Update the updatedAt timestamp
+        existingUser.setUpdatedAt(LocalDateTime.now());
 
-     return userMapper.toUpdateResponse(user); // map updated entity -> response DTO
+        // Save changes in the database
+        userRepository.update(existingUser);
+
+        // Return the updated user mapped to the response DTO
+        return userMapper.toUpdateResponse(existingUser);
     }
+
 
     // delete
     public void deleteUser(Long id){
