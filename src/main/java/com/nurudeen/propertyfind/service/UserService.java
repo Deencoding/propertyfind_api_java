@@ -6,6 +6,7 @@ import com.nurudeen.propertyfind.mappers.UserMapper;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,20 +21,26 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    // create
-    public UserCreateResponseDto createUser(UserCreateDto dto){
-        // check if email already exists in the db
-        Optional< UserEntity> existingUser = userRepository.findByEmail(dto.getEmail());
-
-        if(existingUser.isPresent()){
-            throw new RuntimeException("Email already exists" + dto.getEmail());
+    public UserCreateResponseDto createUser(UserCreateDto dto) {
+        Optional<UserEntity> existingUser = userRepository.findByEmail(dto.getEmail());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("Email already exists: " + dto.getEmail());
         }
 
         UserEntity user = userMapper.toEntity(dto);
+
+        LocalDateTime now = LocalDateTime.now();
+        user.setRegisteredDate(now);
+        user.setUpdatedAt(now);
+
+        // Save to DB
         userRepository.save(user);
 
-        return userMapper.toCreateResponse(user); // map saved entity -> response DTO
+        System.out.println("DEBUG: User before mapping => " + user);
+
+        return userMapper.toCreateResponse(user);
     }
+
 
     // read all
     public List<UserResponseDto> getAllUsers(){
