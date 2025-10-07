@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,18 +19,28 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // CREATE
+    // INSERT user and return saved entity with ID
     public void save(UserEntity user) {
-        String sql = "INSERT INTO users (full_name, email, password, phone_number, role) VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql,
+        String sql = """
+            INSERT INTO users (full_name, email, password, phone_number, role, registered_date, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            RETURNING id
+        """;
+
+        Long id = jdbcTemplate.queryForObject(
+                sql,
+                Long.class,
                 user.getFullName(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getPhoneNumber(),
-                user.getRole().toString()
+                user.getRole().name(),
+                Timestamp.valueOf(user.getRegisteredDate()),
+                Timestamp.valueOf(user.getUpdatedAt())
         );
-    }
 
+        user.setId(id);
+    }
     // READ ALL
     public List<UserEntity> findAll() {
         String sql = """
