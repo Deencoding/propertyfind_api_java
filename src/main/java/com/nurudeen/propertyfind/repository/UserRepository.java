@@ -58,21 +58,22 @@ public class UserRepository {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(UserEntity.class));
     }
 
-    // READ ONE BY ID
+    // read by id
     public Optional<UserEntity> findById(Long id) {
         String sql = """
-                SELECT id,
-                       full_name AS fullName,
-                       email,
-                       password,
-                       phone_number AS phoneNumber,
-                       registered_date AS registeredDate,
-                       updated_at AS updatedAt,
-                       active,
-                       role
-                FROM users
-                WHERE id = ?
-                """;
+            SELECT id,
+                   full_name AS fullName,
+                   email,
+                   password,
+                   phone_number AS phoneNumber,
+                   registered_date AS registeredDate,
+                   updated_at AS updatedAt,
+                   active,
+                   role
+            FROM users
+            WHERE id = ?
+            """;
+
         try {
             UserEntity user = jdbcTemplate.queryForObject(
                     sql,
@@ -81,9 +82,11 @@ public class UserRepository {
             );
             return Optional.ofNullable(user);
         } catch (EmptyResultDataAccessException e) {
+            // Return empty if no user is found
             return Optional.empty();
         }
     }
+
 
     // READ ONE BY EMAIL
     public Optional<UserEntity> findByEmail(String email) {
