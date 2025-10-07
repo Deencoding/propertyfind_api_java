@@ -1,7 +1,7 @@
 package com.nurudeen.propertyfind.dto.user;
 
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class UserUpdateResponseDto {
 
@@ -9,8 +9,8 @@ public class UserUpdateResponseDto {
     private String fullName;
     private String email;
     private String phoneNumber;
-    private LocalDate registeredDate;
-    private LocalDate updatedAt;
+    private LocalDateTime registeredDate;
+    private LocalDateTime updatedAt;
 
     // no args constructor, needed for jpa
 
@@ -21,7 +21,7 @@ public class UserUpdateResponseDto {
     // all args constructor used service layer when mapping from an entity (User) to a DTO
 
 
-    public UserUpdateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDate registeredDate, LocalDate updatedAt) {
+    public UserUpdateResponseDto(Long id, String fullName, String email, String phoneNumber, LocalDateTime registeredDate, LocalDateTime updatedAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -65,19 +65,19 @@ public class UserUpdateResponseDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public LocalDate getRegisteredDate() {
+    public LocalDateTime getRegisteredDate() {
         return registeredDate;
     }
 
-    public void setRegisteredDate(LocalDate registeredDate) {
+    public void setRegisteredDate(LocalDateTime registeredDate) {
         this.registeredDate = registeredDate;
     }
 
-    public LocalDate getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDate updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
