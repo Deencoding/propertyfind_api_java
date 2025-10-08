@@ -2,16 +2,12 @@ package com.nurudeen.propertyfind.repository;
 
 import com.nurudeen.propertyfind.entity.PropertyEntity;
 import com.nurudeen.propertyfind.mappers.PropertyEntityRowMapper;
-import com.nurudeen.propertyfind.util.JdbcUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Array;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,7 +112,7 @@ public class PropertyRepository {
                 property.getBedroom(),
                 property.getBathroom(),
                 property.getArea(),
-                String.join(",", property.getImageUrls()),
+                property.getImageUrls() != null ? property.getImageUrls().toArray(new String[0]) : new String[0],
                 property.isAvailable(),
                 property.getUpdatedAt(),
                 property.getProviderId(),
