@@ -37,12 +37,13 @@ public class PropertyRepository {
                 property.getBedroom(),
                 property.getBathroom(),
                 property.getArea(),
-                String.join(",", property.getImageUrls()), // store as comma-separated text
+                property.getImageUrls() != null ? property.getImageUrls().toArray(new String[0]) : new String[0], //pass as array
                 property.isAvailable(),
                 property.getListedDate(),
                 property.getUpdatedAt(),
                 property.getProviderId()
         );
+
     }
 
     // Read all
