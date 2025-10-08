@@ -1,12 +1,16 @@
 package com.nurudeen.propertyfind.repository;
 
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.util.JdbcUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Array;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,8 +66,34 @@ public class PropertyRepository {
                 "updated_at as updatedAt, provider_id as providerId " +
                 "FROM properties";
 
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PropertyEntity.class));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            PropertyEntity property = new PropertyEntity();
+            property.setId(rs.getLong("id"));
+            property.setDescription(rs.getString("description"));
+            property.setTitle(rs.getString("title"));
+            property.setAddress(rs.getString("address"));
+            property.setCity(rs.getString("city"));
+            property.setState(rs.getString("state"));
+            property.setCountry(rs.getString("country"));
+            property.setPricePerYear(rs.getBigDecimal("pricePerYear"));
+            property.setBedroom(rs.getInt("bedroom"));
+            property.setBathroom(rs.getInt("bathroom"));
+            property.setArea(rs.getDouble("area"));
+
+            // Use utility method for PostgreSQL arrays
+            property.setImageUrls(JdbcUtils.pgArrayToList(rs.getArray("image_urls")));
+
+
+            property.setAvailable(rs.getBoolean("available"));
+            property.setListedDate(rs.getTimestamp("listedDate").toLocalDateTime());
+            property.setUpdatedAt(rs.getTimestamp("updatedAt") != null ?
+                    rs.getTimestamp("updatedAt").toLocalDateTime() : null);
+            property.setProviderId(rs.getLong("providerId"));
+
+            return property;
+        });
     }
+
 
     // Read one
     public Optional<PropertyEntity> findById(Long id) {
