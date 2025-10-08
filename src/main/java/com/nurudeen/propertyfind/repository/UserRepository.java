@@ -19,7 +19,7 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // INSERT user and return saved entity with ID
+    // insert user and return saved entity with ID
     public void save(UserEntity user) {
         String sql = """
             INSERT INTO users (full_name, email, password, phone_number, role, registered_date, updated_at)
@@ -41,7 +41,7 @@ public class UserRepository {
 
         user.setId(id);
     }
-    // READ ALL
+    // read all
     public List<UserEntity> findAll() {
         String sql = """
                 SELECT id,
@@ -88,7 +88,7 @@ public class UserRepository {
     }
 
 
-    // READ ONE BY EMAIL
+    // read by email
     public Optional<UserEntity> findByEmail(String email) {
         String sql = """
                 SELECT id,
@@ -115,7 +115,7 @@ public class UserRepository {
         }
     }
 
-    // UPDATE
+    // update
     public void update(UserEntity user) {
         String sql = """
                 UPDATE users
@@ -138,7 +138,7 @@ public class UserRepository {
         );
     }
 
-    // DELETE
+    // delete
     public void delete(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sql, id);
