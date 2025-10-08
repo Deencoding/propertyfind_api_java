@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,27 +25,33 @@ public class PropertyRepository {
                 "description, title, address, city, state, country, " +
                 "price_per_year, bedroom, bathroom, area, image_urls, " +
                 "available, listed_date, updated_at, provider_id" +
-                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
-        jdbcTemplate.update(sql,
+        Long id = jdbcTemplate.queryForObject(
+                sql,
+                Long.class,
                 property.getDescription(),
                 property.getTitle(),
                 property.getAddress(),
                 property.getCity(),
                 property.getState(),
                 property.getCountry(),
-                property.getPricePerYear(),
+                property.getPricePerYear().longValue(),
                 property.getBedroom(),
                 property.getBathroom(),
                 property.getArea(),
-                property.getImageUrls() != null ? property.getImageUrls().toArray(new String[0]) : new String[0], //pass as array
+                property.getImageUrls() != null ? property.getImageUrls().toArray(new String[0]) : new String[0],
                 property.isAvailable(),
-                property.getListedDate(),
-                property.getUpdatedAt(),
+                Timestamp.valueOf(property.getListedDate()),
+                Timestamp.valueOf(property.getUpdatedAt()),
                 property.getProviderId()
         );
 
+        property.setId(id);
     }
+
+
+
 
     // Read all
     public List<PropertyEntity> findAll() {
