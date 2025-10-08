@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.repository;
 
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.mappers.PropertyEntityRowMapper;
 import com.nurudeen.propertyfind.util.JdbcUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -54,9 +55,6 @@ public class PropertyRepository {
         property.setId(id);
     }
 
-
-
-
     // Read all
     public List<PropertyEntity> findAll() {
         String sql = "SELECT " +
@@ -65,35 +63,8 @@ public class PropertyRepository {
                 "image_urls, available, listed_date as listedDate, " +
                 "updated_at as updatedAt, provider_id as providerId " +
                 "FROM properties";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            PropertyEntity property = new PropertyEntity();
-            property.setId(rs.getLong("id"));
-            property.setDescription(rs.getString("description"));
-            property.setTitle(rs.getString("title"));
-            property.setAddress(rs.getString("address"));
-            property.setCity(rs.getString("city"));
-            property.setState(rs.getString("state"));
-            property.setCountry(rs.getString("country"));
-            property.setPricePerYear(rs.getBigDecimal("pricePerYear"));
-            property.setBedroom(rs.getInt("bedroom"));
-            property.setBathroom(rs.getInt("bathroom"));
-            property.setArea(rs.getDouble("area"));
-
-            // Use utility method for PostgreSQL arrays
-            property.setImageUrls(JdbcUtils.pgArrayToList(rs.getArray("image_urls")));
-
-
-            property.setAvailable(rs.getBoolean("available"));
-            property.setListedDate(rs.getTimestamp("listedDate").toLocalDateTime());
-            property.setUpdatedAt(rs.getTimestamp("updatedAt") != null ?
-                    rs.getTimestamp("updatedAt").toLocalDateTime() : null);
-            property.setProviderId(rs.getLong("providerId"));
-
-            return property;
-        });
+        return jdbcTemplate.query(sql, new PropertyEntityRowMapper());
     }
-
 
     // Read one
     public Optional<PropertyEntity> findById(Long id) {
@@ -103,11 +74,10 @@ public class PropertyRepository {
                 "image_urls, available, listed_date as listedDate, " +
                 "updated_at as updatedAt, provider_id as providerId " +
                 "FROM properties WHERE id = ?";
-
         try {
             PropertyEntity property = jdbcTemplate.queryForObject(
                     sql,
-                    new BeanPropertyRowMapper<>(PropertyEntity.class),
+                    new PropertyEntityRowMapper(),
                     id
             );
             return Optional.ofNullable(property);
