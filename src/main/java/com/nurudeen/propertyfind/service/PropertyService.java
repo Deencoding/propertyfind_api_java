@@ -9,6 +9,7 @@ import com.nurudeen.propertyfind.repository.PropertyRepository;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,6 +35,9 @@ public class PropertyService {
 
 
         property.setProviderId(providerId);
+
+        LocalDateTime now = LocalDateTime.now();
+        property.setListedDate(now);
 
         // Save property
         propertyRepository.save(property);
