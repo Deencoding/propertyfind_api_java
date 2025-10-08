@@ -24,7 +24,7 @@ public class PropertyEntity {
 
     private Long providerId;  // Foreign key reference to providers table
 
-    // --- Constructors ---
+    // Constructors
     public PropertyEntity() {}
 
     public PropertyEntity(Long id, String description, String title, String address,
