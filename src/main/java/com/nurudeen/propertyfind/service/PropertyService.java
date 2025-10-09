@@ -57,6 +57,20 @@ public class PropertyService {
                 .toList();
     }
 
+    // read all properties by provider id
+    public List<PropertyResponseDto> getAllPropertiesByProviderId(Long providerId) {
+        List<PropertyEntity> properties = propertyRepository.findByProviderId(providerId);
+
+        if (properties.isEmpty()) {
+            throw new RuntimeException("No properties found for provider with id " + providerId);
+        }
+
+        return properties.stream()
+                .map(propertyMapper::toResponse)
+                .toList();
+    }
+
+
     // read one
     public PropertyResponseDto getPropertyById(Long id){
         return propertyRepository.findById(id)
