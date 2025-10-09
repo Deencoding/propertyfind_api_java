@@ -4,6 +4,7 @@ import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.mappers.UserMapper;
 import com.nurudeen.propertyfind.repository.UserRepository;
+import com.nurudeen.propertyfind.util.PasswordUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,10 +16,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordUtils passwordUtils;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PasswordUtils passwordUtils) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.passwordUtils = passwordUtils;
     }
 
     public UserCreateResponseDto createUser(UserCreateDto dto) {
@@ -32,6 +35,10 @@ public class UserService {
         LocalDateTime now = LocalDateTime.now();
         user.setRegisteredDate(now);
         user.setUpdatedAt(now);
+
+        // hash password before saving
+        String hashedPassword = passwordUtils.hashPassword(user.getPassword());
+        user.setPassword(hashedPassword);
 
         // Save to DB
         userRepository.save(user);
