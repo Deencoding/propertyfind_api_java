@@ -4,21 +4,30 @@ import com.nurudeen.propertyfind.dto.auth.LoginRequestDto;
 import com.nurudeen.propertyfind.dto.auth.LoginResponseDto;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.repository.UserRepository;
+import com.nurudeen.propertyfind.util.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
-    @Autowired
-    public UserRepository userRepository;
+
+    private final UserRepository userRepository;
+    private final PasswordUtils passwordUtils;
+
+    public AuthService(UserRepository userRepository, PasswordUtils passwordUtils) {
+        this.userRepository = userRepository;
+        this.passwordUtils = passwordUtils;
+    }
+
 
     public LoginResponseDto login(LoginRequestDto dto){
         // find user by email
         UserEntity user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()->new RuntimeException("invalid email"));
 
-        if (!user.getPassword().equals(dto.getPassword())){
+        // Compare plain password with hashed password
+        if (!passwordUtils.matches(dto.getPassword(), user.getPassword())) {
             throw new RuntimeException("invalid password");
         }
 
