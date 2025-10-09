@@ -37,18 +37,18 @@ public class PropertyUpdateDto {
 
     @NotBlank(message = "Bedroom is required")
     @Size(min = 2, max = 50, message = "Bedrooms must be between 2 and 50 characters")
-    private int bedroom;
+    private Integer bedroom;
 
     @Min(value = 0, message = "Bathrooms cannot be negative")
-    private int bathroom;
+    private Integer bathroom;
 
     @Positive(message = "Area must be greater than 0")
-    private double area;
+    private Double area;
 
     @NotEmpty(message = "At least one image URL is required")
     private List<@NotBlank(message = "Image URL cannot be blank") String> imageUrls;
 
-    private boolean available;
+    private Boolean available;
 
     // no args constructor needed for jpa
 
@@ -62,8 +62,8 @@ public class PropertyUpdateDto {
 
 
     public PropertyUpdateDto(String description, String title, String address, String city, String state,
-                             String country, BigDecimal pricePerYear, int bedroom, int bathroom, double area,
-                             List<String> imageUrls, boolean available) {
+                             String country, BigDecimal pricePerYear, Integer bedroom, Integer bathroom, Double area,
+                             List<String> imageUrls, Boolean available) {
         this.description = description;
         this.title = title;
         this.address = address;
@@ -138,27 +138,27 @@ public class PropertyUpdateDto {
         this.pricePerYear = pricePerYear;
     }
 
-    public int getBedroom() {
+    public Integer getBedroom() {
         return bedroom;
     }
 
-    public void setBedroom(int bedroom) {
+    public void setBedroom(Integer bedroom) {
         this.bedroom = bedroom;
     }
 
-    public int getBathroom() {
+    public Integer getBathroom() {
         return bathroom;
     }
 
-    public void setBathroom(int bathroom) {
+    public void setBathroom(Integer bathroom) {
         this.bathroom = bathroom;
     }
 
-    public double getArea() {
+    public Double getArea() {
         return area;
     }
 
-    public void setArea(double area) {
+    public void setArea(Double area) {
         this.area = area;
     }
 
@@ -170,11 +170,11 @@ public class PropertyUpdateDto {
         this.imageUrls = imageUrls;
     }
 
-    public boolean isAvailable() {
+    public Boolean isAvailable() {
         return available;
     }
 
-    public void setAvailable(boolean available) {
+    public void setAvailable(Boolean available) {
         this.available = available;
     }
 
