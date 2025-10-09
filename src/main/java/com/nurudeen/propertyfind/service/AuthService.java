@@ -19,7 +19,7 @@ public class AuthService {
                 .orElseThrow(()->new RuntimeException("invalid email"));
 
         if (!user.getPassword().equals(dto.getPassword())){
-            throw new RuntimeException("password");
+            throw new RuntimeException("invalid password");
         }
 
         // build response
