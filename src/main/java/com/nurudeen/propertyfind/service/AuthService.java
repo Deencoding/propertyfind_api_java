@@ -18,6 +18,10 @@ public class AuthService {
         UserEntity user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(()->new RuntimeException("invalid email"));
 
+        if (!user.getPassword().equals(dto.getPassword())){
+            throw new RuntimeException("password");
+        }
+
         // build response
         LoginResponseDto response = new LoginResponseDto();
         response.setId(user.getId());
