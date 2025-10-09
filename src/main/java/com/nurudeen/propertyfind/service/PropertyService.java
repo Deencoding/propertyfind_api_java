@@ -38,6 +38,7 @@ public class PropertyService {
 
         LocalDateTime now = LocalDateTime.now();
         property.setListedDate(now);
+        property.setUpdatedAt(now);
 
         // Save property
         propertyRepository.save(property);
@@ -65,21 +66,25 @@ public class PropertyService {
 
     // update
     public PropertyUpdateResponseDto updateProperty(Long id, PropertyUpdateDto dto){
+
+        // fetch existing property
         PropertyEntity property = propertyRepository.findById(id)
                 .orElseThrow(()-> new RuntimeException("property not found with id" + id));
 
-        // update fields
-        property.setTitle(dto.getTitle());
-        property.setDescription(dto.getDescription());
-        property.setArea(dto.getArea());
-        property.setAddress(dto.getAddress());
-        property.setAvailable(dto.isAvailable());
-        property.setBathroom(dto.getBathroom());
-        property.setBedroom(dto.getBedroom());
-        property.setCity(dto.getCity());
-        property.setImageUrls(dto.getImageUrls());
-        property.setCountry(dto.getCountry());
-        property.setPricePerYear(dto.getPricePerYear());
+        // update only non-null fields from dto
+        if (dto.getTitle() != null) property.setTitle(dto.getTitle());
+        if (dto.getDescription() != null) property.setDescription(dto.getDescription());
+        if (dto.getArea() != null) property.setArea(dto.getArea());
+        if (dto.getAddress() != null) property.setAddress(dto.getAddress());
+        if (dto.isAvailable() != null) property.setAvailable(dto.isAvailable());
+        if (dto.getBathroom() != null) property.setBathroom(dto.getBathroom());
+        if (dto.getBedroom() != null) property.setBedroom(dto.getBedroom());
+        if (dto.getCity() != null) property.setCity(dto.getCity());
+        if (dto.getImageUrls() != null) property.setImageUrls(dto.getImageUrls());
+        if (dto.getCountry() != null) property.setCountry(dto.getCountry());
+        if (dto.getPricePerYear() != null) property.setPricePerYear(dto.getPricePerYear());
+        // update the updateAt timestamp
+        property.setUpdatedAt(LocalDateTime.now());
 
         // persist updates
         propertyRepository.update(property);
