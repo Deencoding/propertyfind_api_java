@@ -1,20 +1,26 @@
 package com.nurudeen.propertyfind.dto.auth;
 
+import com.nurudeen.propertyfind.entity.UserEnum;
+
+import java.time.LocalDateTime;
+
 public class LoginResponseDto {
     private Long id;
     private String fullName;
     private String email;
-    private String role;
+    private UserEnum role;
+    private LocalDateTime registeredDate;
 
     public LoginResponseDto(){
 
     }
 
-    public LoginResponseDto(Long id, String fullName, String email, String role) {
+    public LoginResponseDto(Long id, String fullName, String email, UserEnum role, LocalDateTime registeredDate) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
         this.role = role;
+        this.registeredDate = registeredDate;
     }
 
     public Long getId() {
@@ -41,12 +47,21 @@ public class LoginResponseDto {
         this.email = email;
     }
 
-    public String getRole() {
+    public UserEnum getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserEnum role) {
         this.role = role;
+    }
+
+
+    public LocalDateTime getRegisteredDate() {
+        return registeredDate;
+    }
+
+    public void setRegisteredDate(LocalDateTime registeredDate) {
+        this.registeredDate = registeredDate;
     }
 
     @Override
@@ -56,6 +71,7 @@ public class LoginResponseDto {
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
+                ", registeredDate=" + registeredDate +
                 '}';
     }
 }
