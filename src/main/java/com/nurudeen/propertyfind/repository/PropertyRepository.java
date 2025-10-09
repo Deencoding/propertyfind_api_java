@@ -82,16 +82,18 @@ public class PropertyRepository {
         }
     }
 
-    // Read by provider ID
+    // Read all properties by provider ID
     public List<PropertyEntity> findByProviderId(Long providerId) {
-        String sql = "SELECT " +
-                "id, description, title, address, city, state, country, " +
-                "price_per_year as pricePerYear, bedroom, bathroom, area, " +
-                "image_urls, available, listed_date as listedDate, " +
-                "updated_at as updatedAt, provider_id as providerId " +
-                "FROM properties WHERE provider_id = ?";
+        String sql = """
+        SELECT id, description, title, address, city, state, country,
+               price_per_year AS pricePerYear, bedroom, bathroom, area,
+               image_urls, available, listed_date AS listedDate,
+               updated_at AS updatedAt, provider_id AS providerId
+        FROM properties
+        WHERE provider_id = ?
+    """;
 
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PropertyEntity.class), providerId);
+        return jdbcTemplate.query(sql, new PropertyEntityRowMapper(), providerId);
     }
 
     // Update
