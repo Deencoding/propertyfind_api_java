@@ -27,6 +27,12 @@ public class PropertyController {
                 .body(response);
     }
 
+    // get all properties by provider id
+    @GetMapping("/provider/{providerId}")
+    public ResponseEntity<List<PropertyResponseDto>> getPropertyByProviderId(@PathVariable Long providerId) {
+        return ResponseEntity.ok(propertyService.getAllPropertiesByProviderId(providerId));
+    }
+
     // get all properties
     @GetMapping
     public ResponseEntity<List<PropertyResponseDto>> getAllProperties() {
