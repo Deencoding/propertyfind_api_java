@@ -18,7 +18,7 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
-    // create user
+    // create property
     @PostMapping("/provider/{providerId}")
     public ResponseEntity<PropertyCreateResponseDto> createProperty(@PathVariable Long providerId,
                                                                     @RequestBody PropertyCreateDto dto) {
@@ -33,14 +33,14 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getAllProperties());
     }
 
-    // get property by id
+    // get property by property id
     @GetMapping("/{id}")
     public ResponseEntity<PropertyResponseDto> getPropertyById(@PathVariable Long id) {
         return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
 
 
-    // update property
+    // update property by id
     @PutMapping("/{id}")
     public ResponseEntity<PropertyUpdateResponseDto> updateProperty(
             @PathVariable Long id,
@@ -50,7 +50,7 @@ public class PropertyController {
         return ResponseEntity.ok(response);
     }
 
-    // Delete property
+    // Delete property by id
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);
