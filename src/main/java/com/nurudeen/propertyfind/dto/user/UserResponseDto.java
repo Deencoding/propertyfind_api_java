@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.dto.user;
 
 
+import com.nurudeen.propertyfind.dto.property.PropertyResponseDto;
 import com.nurudeen.propertyfind.entity.UserEnum;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,9 @@ public class UserResponseDto {
     private LocalDateTime registeredDate;
     private LocalDateTime updatedAt;
     private UserEnum role;
+
+    // nested property details
+    private PropertyResponseDto property;
 
 
     // no args constructor, needed for jpa
@@ -91,6 +95,14 @@ public class UserResponseDto {
 
     public void setRole(UserEnum role) {
         this.role = role;
+    }
+
+    public PropertyResponseDto getProperty() {
+        return property;
+    }
+
+    public void setProperty(PropertyResponseDto property) {
+        this.property = property;
     }
 
     // to string method expose data as a human-readable string
