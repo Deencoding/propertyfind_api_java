@@ -5,6 +5,7 @@ import com.nurudeen.propertyfind.dto.property.PropertyResponseDto;
 import com.nurudeen.propertyfind.entity.UserEnum;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserResponseDto {
@@ -18,7 +19,7 @@ public class UserResponseDto {
     private UserEnum role;
 
     // nested property details
-    private List<PropertyResponseDto> properties;
+    private List<PropertyResponseDto> properties = new ArrayList<>();
 
 
     // no args constructor, needed for jpa
