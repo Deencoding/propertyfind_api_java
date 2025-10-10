@@ -24,7 +24,6 @@ public class PropertyResponseDto {
     private LocalDateTime listedDate;
     private LocalDateTime updatedAt;
 
-    private Long providerId;
 
     // nested provider details
     private UserResponseDto user;
@@ -43,7 +42,7 @@ public class PropertyResponseDto {
                                LocalDateTime listedDate, boolean available,
                                List<String> imageUrls, double area, int bathroom, int bedroom,
                                BigDecimal pricePerYear, String country, String state, String city,
-                               String address, String title, String description, Long id, Long providerId) {
+                               String address, String title, String description, Long id) {
         this.updatedAt = updatedAt;
         this.listedDate = listedDate;
         this.available = available;
@@ -59,7 +58,6 @@ public class PropertyResponseDto {
         this.title = title;
         this.description = description;
         this.id = id;
-        this.providerId = providerId;
     }
 
 
@@ -186,12 +184,12 @@ public class PropertyResponseDto {
         this.updatedAt = updatedAt;
     }
 
-    public Long getProviderId() {
-        return providerId;
+    public UserResponseDto getUser() {
+        return user;
     }
 
-    public void setProviderId(Long providerId) {
-        this.providerId = providerId;
+    public void setUser(UserResponseDto user) {
+        this.user = user;
     }
 
     // to string method expose data as a human-readable string
@@ -214,7 +212,6 @@ public class PropertyResponseDto {
                 ", available=" + available +
                 ", listedDate=" + listedDate +
                 ", updatedAt=" + updatedAt +
-                ", providerId=" + providerId +
                 '}';
     }
 }
