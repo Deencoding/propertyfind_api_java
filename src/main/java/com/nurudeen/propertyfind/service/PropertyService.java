@@ -1,10 +1,10 @@
 package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.property.*;
-import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.mappers.PropertyMapper;
+import com.nurudeen.propertyfind.mappers.UserMapper;
 import com.nurudeen.propertyfind.repository.PropertyRepository;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -18,11 +18,13 @@ public class PropertyService {
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public PropertyService(PropertyRepository propertyRepository, PropertyMapper propertyMapper, UserRepository userRepository) {
+    public PropertyService(PropertyRepository propertyRepository, PropertyMapper propertyMapper, UserRepository userRepository, UserMapper userMapper) {
         this.propertyRepository = propertyRepository;
         this.propertyMapper = propertyMapper;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     // create
@@ -34,7 +36,7 @@ public class PropertyService {
                 .orElseThrow(() -> new RuntimeException("Provider not found with id " + providerId));
 
 
-        property.setProviderId(providerId);
+//        property.setProviderId(providerId);
 
         LocalDateTime now = LocalDateTime.now();
         property.setListedDate(now);
@@ -72,10 +74,20 @@ public class PropertyService {
 
 
     // read one
-    public PropertyResponseDto getPropertyById(Long id){
+    public PropertyResponseDto getPropertyById(Long id) {
         return propertyRepository.findById(id)
-                .map(propertyMapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("property not found with id" + id));
+                .map(property -> {
+                    PropertyResponseDto dto = propertyMapper.toResponse(property);
+
+                    // Manually attach the user
+                    if (property.getProviderId() != null) {
+                        userRepository.findById(property.getProviderId())
+                                .ifPresent(user -> dto.setUser(userMapper.toResponse(user)));
+                    }
+
+                    return dto;
+                })
+                .orElse(null);
     }
 
     // update
