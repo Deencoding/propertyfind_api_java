@@ -33,9 +33,6 @@ public class PropertyService {
         UserEntity provider = userRepository.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Provider not found with id " + providerId));
 
-
-        property.setProviderId(providerId);
-
         LocalDateTime now = LocalDateTime.now();
         property.setListedDate(now);
         property.setUpdatedAt(now);
