@@ -3,7 +3,6 @@ package com.nurudeen.propertyfind.controller;
 
 import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.service.UserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +17,6 @@ public class UserController {
 
     public UserController(UserService userService) {
         this.userService = userService;
-    }
-
-    // create user
-    @PostMapping
-    public ResponseEntity<UserCreateResponseDto> createUser(@RequestBody UserCreateDto dto){
-        UserCreateResponseDto response = userService.createUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // get all users
