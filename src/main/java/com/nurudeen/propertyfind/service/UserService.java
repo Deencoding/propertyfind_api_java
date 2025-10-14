@@ -43,8 +43,6 @@ public class UserService {
         // Save to DB
         userRepository.save(user);
 
-        System.out.println("DEBUG: User before mapping => " + user);
-
         return userMapper.toCreateResponse(user);
     }
 
