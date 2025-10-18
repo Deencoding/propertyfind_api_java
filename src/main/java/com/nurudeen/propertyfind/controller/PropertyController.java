@@ -34,7 +34,7 @@ public class PropertyController {
     }
 
     // get all properties
-    @GetMapping
+    @GetMapping("get-all-properties")
     public ResponseEntity<List<PropertyResponseDto>> getAllProperties() {
         return ResponseEntity.ok(propertyService.getAllProperties());
     }
