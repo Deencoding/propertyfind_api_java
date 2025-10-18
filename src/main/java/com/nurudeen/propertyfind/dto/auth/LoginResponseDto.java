@@ -10,6 +10,8 @@ public class LoginResponseDto {
     private String email;
     private UserEnum role;
     private LocalDateTime registeredDate;
+    private String token;
+
 
     public LoginResponseDto(){
 
@@ -62,6 +64,14 @@ public class LoginResponseDto {
 
     public void setRegisteredDate(LocalDateTime registeredDate) {
         this.registeredDate = registeredDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
