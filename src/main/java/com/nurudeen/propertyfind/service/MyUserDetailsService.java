@@ -28,4 +28,10 @@ public class MyUserDetailsService implements UserDetailsService {
         return new CustomUserPrincipal(user);
     }
 
+    // Custom method for ID-based JWT authentication
+    public UserDetails loadUserById(Long userId) throws UsernameNotFoundException {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+        return new CustomUserPrincipal(user);
+    }
 }
