@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -23,43 +24,63 @@ public class JwtService {
     }
 
     public String generateToken(String email, Long userId, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", email);
+        claims.put("role", role);
+
+
         return Jwts.builder()
-                .setSubject(email)          // email goes in "sub"
-                .claim("userId", userId)    // other custom claims
-                .claim("role", role)
+                .setClaims(claims)
+                .setSubject(String.valueOf(userId)) // User ID as subject
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
+    // Extract user ID from token (subject)
+    public Long extractUserId(String token) {
+        String subject = extractClaim(token, Claims::getSubject);
+        return Long.parseLong(subject);
     }
 
+    // Extract email from token
+    public String extractEmail(String token) {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    // Extract role from token
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    // Generic method to extract claims
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = parseClaims(token);
+        final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Claims parseClaims(String token) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(signingKey)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (JwtException e) {
-            throw new RuntimeException("Invalid JWT token", e); // you can define custom exception type
-        }
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
-    public boolean isTokenExpired(String token) {
-        return extractClaim(token, Claims::getExpiration).before(new Date());
-    }
-
+    // Validate token
     public boolean isTokenValid(String token, String email) {
         final String subject = extractEmail(token);
         return (subject.equals(email) && !isTokenExpired(token));
     }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
 }
+
