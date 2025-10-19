@@ -1,5 +1,6 @@
 package com.nurudeen.propertyfind.config;
 
+import com.nurudeen.propertyfind.security.CustomUserPrincipal;
 import com.nurudeen.propertyfind.security.JwtService;
 import com.nurudeen.propertyfind.service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
@@ -35,35 +36,44 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
         String token = null;
-        String email = null;
+        Long userId = null;
 
-        // Check if Authorization header starts with Bearer
+        // Extract JWT token from the Authorization header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
-                email = jwtService.extractEmail(token);
+                // Extract user ID (since you store it as the subject)
+                userId = jwtService.extractUserId(token);
             } catch (Exception e) {
-                logger.warn("Invalid or expired JWT token: {}");
+                logger.warn("Invalid or expired JWT token", e);
             }
         }
 
-        // If email extracted and not yet authenticated
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-            if (jwtService.isTokenValid(token, email)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+        // Proceed only if userId is valid and user not yet authenticated
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                // Load the user by ID
+                UserDetails userDetails = userDetailsService.loadUserById(userId);
 
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                // Validate token using the token and username(email)
+                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                logger.warn("JWT validation failed", e);
             }
         }
 
-        // Continue with the next filter
+        // Continue with the next filter in the chain
         filterChain.doFilter(request, response);
     }
 }
