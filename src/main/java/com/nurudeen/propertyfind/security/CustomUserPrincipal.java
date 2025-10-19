@@ -37,7 +37,7 @@ public class CustomUserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // assuming login is by email
+        return user.getEmail();
     }
 
     @Override
