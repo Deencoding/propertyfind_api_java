@@ -4,6 +4,7 @@ package com.nurudeen.propertyfind.controller;
 import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class UserController {
     }
 
     // get one user by id
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id){
         UserResponseDto user = userService.getUserById(id);
@@ -27,6 +29,7 @@ public class UserController {
     }
 
     // update user
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserUpdateResponseDto> updateUser(@PathVariable Long id, @RequestBody UserUpdateDto dto){
         UserUpdateResponseDto response = userService.updateUser(id, dto);
@@ -34,6 +37,7 @@ public class UserController {
     }
 
     // delete user
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
