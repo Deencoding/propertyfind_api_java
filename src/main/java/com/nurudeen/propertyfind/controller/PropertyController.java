@@ -4,6 +4,7 @@ import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.service.PropertyService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class PropertyController {
     }
 
     // create property
+    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
     @PostMapping("/provider/{providerId}")
     public ResponseEntity<PropertyCreateResponseDto> createProperty(@PathVariable Long providerId,
                                                                     @RequestBody PropertyCreateDto dto) {
@@ -47,6 +49,7 @@ public class PropertyController {
 
 
     // update property by id
+    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
     @PutMapping("/{id}")
     public ResponseEntity<PropertyUpdateResponseDto> updateProperty(
             @PathVariable Long id,
@@ -57,6 +60,7 @@ public class PropertyController {
     }
 
     // Delete property by id
+    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);
