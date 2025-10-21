@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -35,18 +38,21 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        String token = null;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String token = authHeader.substring(7);
         Long userId = null;
 
-        // Extract JWT token from the Authorization header
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            try {
-                // Extract user ID (since you store it as the subject)
-                userId = jwtService.extractUserId(token);
-            } catch (Exception e) {
-                logger.warn("Invalid or expired JWT token", e);
-            }
+        try {
+            userId = jwtService.extractUserId(token);
+        } catch (Exception e) {
+            logger.warn("Invalid JWT token", e);
+            filterChain.doFilter(request, response);
+            return;
         }
 
         // Proceed only if userId is valid and user not yet authenticated
@@ -57,19 +63,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
                 // Validate token using the token and username(email)
-                if (jwtService.isTokenValid(token, userDetails.getUsername())) {
+                if (jwtService.extractRole(token) != null && jwtService.isTokenValid(token, userDetails)) {
+                    String role = jwtService.extractRole(token);
+                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
+                                    authorities
                             );
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (Exception e) {
                 logger.warn("JWT validation failed", e);
+
             }
         }
 
