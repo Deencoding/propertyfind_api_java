@@ -35,6 +35,8 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
+        String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getId(), user.getRole().name());
+
 
         LoginResponseDto response = new LoginResponseDto();
         response.setId(user.getId());
@@ -43,6 +45,7 @@ public class AuthService {
         response.setRole(user.getRole());
         response.setRegisteredDate(user.getRegisteredDate());
         response.setToken(token);
+        response.setRefreshToken(refreshToken);
 
         return response;
     }
