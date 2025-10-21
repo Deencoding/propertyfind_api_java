@@ -60,9 +60,9 @@ mvn spring-boot:run
 
 The API will be available at: http://localhost:8080
 
-### API Endpoints
+## API Endpoints
 
-Authentication
+### Authentication
 
 - POST /auth/register – Register a new user
 - POST /auth/login – Login and receive a JWT token
@@ -79,11 +79,6 @@ Authentication
 
 - GET /users – Retrieve all users (Admin only)
 - GET /users/{id} – Retrieve a user by ID
-
-### Authentication
-
-- JWT authentication is used for protected endpoints.
-
 
 ### Database
 
