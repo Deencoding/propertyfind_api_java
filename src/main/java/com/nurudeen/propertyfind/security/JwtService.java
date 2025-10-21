@@ -16,12 +16,15 @@ import java.util.function.Function;
 public class JwtService {
 
     private final Key signingKey;
-    private final long expirationMs;
+    private final long accessTokenExpirationMs;
+    private final long  refreshTokenExpirationMs;
 
     public JwtService(@Value("${jwt.secret}") String secret,
-                      @Value("${jwt.expiration-ms}") long expirationMs) {
+                      @Value("${jwt.expiration-ms}") long accessTokenExpirationMs,
+                      @Value("${jwt.refresh-expiration-ms}") long refreshTokenExpirationMs) {
         this.signingKey = Keys.hmacShaKeyFor(secret.getBytes());
-        this.expirationMs = expirationMs;
+        this.refreshTokenExpirationMs = refreshTokenExpirationMs;
+        this.accessTokenExpirationMs = accessTokenExpirationMs;
     }
 
     public String generateToken(String email, Long userId, String role) {
@@ -34,10 +37,26 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(String.valueOf(userId)) // User ID as subject
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String generateRefreshToken(String email, Long userId, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", email);
+        claims.put("role", role);
+
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMs))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 
     // Extract user ID from token (subject)
     public Long extractUserId(String token) {
@@ -81,7 +100,7 @@ public class JwtService {
         return false;
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
