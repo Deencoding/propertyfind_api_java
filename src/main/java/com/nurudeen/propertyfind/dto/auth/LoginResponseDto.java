@@ -11,6 +11,7 @@ public class LoginResponseDto {
     private UserEnum role;
     private LocalDateTime registeredDate;
     private String token;
+    private String refreshToken;
 
 
     public LoginResponseDto(){
@@ -72,6 +73,14 @@ public class LoginResponseDto {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     @Override
