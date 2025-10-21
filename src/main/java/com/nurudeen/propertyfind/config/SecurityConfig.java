@@ -2,6 +2,7 @@ package com.nurudeen.propertyfind.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,6 +31,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // login/register are public
+                        .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
                         .anyRequest().authenticated() // all others require authentication
                 )
                 .sessionManagement(session ->
