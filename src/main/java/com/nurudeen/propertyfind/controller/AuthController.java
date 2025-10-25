@@ -10,10 +10,7 @@ import com.nurudeen.propertyfind.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -44,6 +41,15 @@ public class AuthController {
         UserCreateResponseDto response = userService.createUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
+    @GetMapping("/google/callback")
+    public ResponseEntity<?> googleCallback(@RequestParam("code") String code) {
+        // Return the object directly, not its string representation
+        var tokenResponse = authService.handleGoogleLogin(code);
+        return ResponseEntity.ok(tokenResponse);
+    }
+
 
     // refresh token
     @PostMapping("/refresh")
