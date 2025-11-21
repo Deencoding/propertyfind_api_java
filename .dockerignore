@@ -1,0 +1,38 @@
+# Ignore files that shouldn't be in the Docker image
+# This makes builds faster and images smaller
+
+# Git files
+.git
+.gitignore
+
+# IDE files
+.idea
+.vscode
+*.iml
+*.iws
+*.ipr
+
+# Build artifacts (we'll build inside Docker)
+target/
+build/
+out/
+
+# Environment files (contain secrets)
+.env
+.env.properties
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

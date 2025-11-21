@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: propertyfind-postgres
+    environment:
+      # These create the initial database and user
+      POSTGRES_DB: property_find_java
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      # Map container port 5432 to host port 5432
+      # Format: "host_port:container_port"
+      - "5432:5432"
+    volumes:
+      # Persist database data so it's not lost when container stops
+      # Named volume 'postgres_data' is stored on your computer
+      - postgres_data:/var/lib/postgresql/data
+      # Mount the SQL file to initialize the database
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - propertyfind-network
+    healthcheck:
+      # Check if PostgreSQL is ready before starting the app
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Application Service
+  app:
+    build:
+      # Build using the Dockerfile in current directory
+      context: .
+      dockerfile: Dockerfile
+    container_name: propertyfind-app
+    environment:
+      # Override database URL to use the postgres service name
+      # Docker networks allow services to talk using their service names
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/property_find_java
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE: ${JWT_EXPIRE}
+      JWT_REFRESH_EXPIRE: ${JWT_REFRESH_EXPIRE}
+      CLIENT_ID: ${CLIENT_ID}
+      CLIENT_SECRET: ${CLIENT_SECRET}
+    ports:
+      # Map container port 8080 to host port 8080
+      - "8080:8080"
+    depends_on:
+      postgres:
+        # Wait for PostgreSQL to be healthy before starting
+        condition: service_healthy
+    networks:
+      - propertyfind-network
+
+  # pgAdmin - Web UI to manage PostgreSQL (optional but useful)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: propertyfind-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@propertyfind.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      # Access pgAdmin at http://localhost:5050
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - propertyfind-network
+
+# Define named volumes (persistent storage)
+volumes:
+  postgres_data:
+    driver: local
+
+# Define network so all services can communicate
+networks:
+  propertyfind-network:
+    driver: bridge
