@@ -39,6 +39,7 @@ services:
     environment:
       # Override database URL to use the postgres service name
       # Docker networks allow services to talk using their service names
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/property_find_java
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
