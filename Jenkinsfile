@@ -2,13 +2,16 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'
-        jdk 'JDK'
+        maven 'maven'
+        jdk 'jdk'
     }
 
     environment {
-        APP_NAME = 'property_java-app'
-        JAR_FILE = "target/${APP_NAME}-*.jar"
+        APP_NAME     = 'java-app'
+        JAR_FILE     = "target/${APP_NAME}-*.jar"
+        JOB_NAME     = "${env.JOB_NAME}"
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        BUILD_URL    = "${env.BUILD_URL}"
     }
 
     stages {
@@ -70,12 +73,11 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-            mail to: 'nurudeenalhassan94@gmail.com',
-                 subject: "Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Check console output: ${env.BUILD_URL}"
         }
         always {
-            cleanWs()
+            script {
+                try { cleanWs() } catch (e) { echo 'Workspace cleanup skipped: ' + e.message }
+            }
         }
     }
 }
