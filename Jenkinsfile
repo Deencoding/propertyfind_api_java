@@ -1,67 +1,94 @@
 pipeline {
-    agent any
+    environment {
+        // Application specific names
+        APP_NAME              = 'propertyfind'
+        ECR_REPO_NAME         = 'propertyfind-backend' 
+        
+        // AWS specific configuration
+        AWS_REGION            = 'us-east-1' 
+        AWS_ACCOUNT_ID        = '355353496029' 
+        
+        // ECS specific configuration
+        ECS_CLUSTER           = 'propertyfind-cluster'
+        ECS_SERVICE           = 'propertyfind-service'
+        
+        DOCKER_BUILDKIT       = '1'
 
-    tools {
-        maven 'maven'
-        jdk 'jdk'
+        // AWS Credentials pulled securely from Jenkins credentials store
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-    environment {
-        APP_NAME     = 'java-app'
-        JAR_FILE     = "target/${APP_NAME}-*.jar"
-        JOB_NAME     = "${env.JOB_NAME}"
-        BUILD_NUMBER = "${env.BUILD_NUMBER}"
-        BUILD_URL    = "${env.BUILD_URL}"
+    // Keep this custom Docker agent so Maven, AWS CLI, and Docker are perfectly installed!
+    agent {
+        dockerfile {
+            dir 'jenkins/'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
 
     stages {
-        stage('Checkout') {
+        stage('Initialize env vars') {
             steps {
-                echo 'Cloning repository...'
-                checkout scm
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Building the project...'
-                sh 'mvn clean package -DskipTests'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
+                script {
+                    env.GIT_SHORT_SHA = sh(script: "echo ${GIT_COMMIT} | cut -c -7", returnStdout: true).trim()
+                    env.IMAGE_TAG = "${GIT_SHORT_SHA}-${BUILD_NUMBER}"
+                    echo "Branch: ${env.BRANCH_NAME} | Tag: ${env.IMAGE_TAG}"
                 }
             }
         }
 
-        stage('Code Quality') {
+        stage('Checkout Code') {
             steps {
-                echo 'Running code quality checks...'
-                sh 'mvn checkstyle:check'
+                cleanWs()
+                checkout scm 
             }
         }
 
-        stage('Package') {
+        stage('Build with Maven') {
             steps {
-                echo 'Packaging the application...'
-                sh 'mvn package -DskipTests'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Deploy') {
+        stage('Run Tests') {
             steps {
-                echo 'Deploying...'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${ECR_REPO_NAME}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
                 sh """
-                    echo 'Deploying ${APP_NAME}...'
-                    java -jar ${JAR_FILE}
+                aws ecr get-login-password --region ${AWS_REGION} \
+                | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                """
+            }
+        }
+
+        stage('Tag & Push Image') {
+            steps {
+                sh """
+                    docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:latest
+                """
+            }
+        }
+
+        stage('Deploy to ECS') {
+            steps {
+                sh """
+                aws ecs update-service \
+                --cluster ${ECS_CLUSTER} \
+                --service ${ECS_SERVICE} \
+                --force-new-deployment \
+                --region ${AWS_REGION}
                 """
             }
         }
@@ -69,15 +96,13 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo "Build ${BUILD_NUMBER} succeeded! Deployed ${IMAGE_TAG} to ECS."
         }
         failure {
-            echo 'Pipeline failed!'
+            echo "Build failed"
         }
         always {
-            script {
-                try { cleanWs() } catch (e) { echo 'Workspace cleanup skipped: ' + e.message }
-            }
+            cleanWs()
         }
     }
 }

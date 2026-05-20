@@ -1,37 +1,32 @@
-# This is a multi-stage Dockerfile
-# Stage 1: Build the application (we don't need to keep build tools in final image)
-FROM maven:3.9-eclipse-temurin-21 AS build
+# Use Java 21 JRE as base runtime image
+FROM eclipse-temurin:21-jre-jammy AS runtime
+LABEL maintainer="nurudeen"
 
-# Set working directory inside container
+# Set timezone
+ENV TZ="Africa/Lagos"
+
+# Create application directories
+RUN mkdir -p /app/logs
+
+# Create non-root user for security
+RUN addgroup --system spring && adduser --system spring --ingroup spring
+RUN chown -R spring:spring /app
+
 WORKDIR /app
 
-# Copy pom.xml first (this helps Docker cache dependencies)
-# If pom.xml doesn't change, Docker won't re-download dependencies
-COPY pom.xml .
+# Copy the jar file built by the Jenkins agent
+COPY target/*.jar app.jar
 
-# Download dependencies (this layer will be cached)
-RUN mvn dependency:go-offline -B
+# Change ownership
+RUN chown spring:spring app.jar
 
-# Copy the source code
-COPY src ./src
+USER spring
 
-# Build the application (skip tests for faster builds, run tests separately)
-RUN mvn clean package -DskipTests
-
-# Stage 2: Create the final lightweight image
-# We use a smaller JRE image (no Maven, no source code)
-FROM eclipse-temurin:21-jre
-
-# Set working directory
-WORKDIR /app
-
-# Copy only the built JAR file from the build stage
-# This makes the final image much smaller
-COPY --from=build /app/target/*.jar app.jar
-
-# Expose the port your Spring Boot app runs on
+# Spring Boot default port
 EXPOSE 8080
 
-# Command to run the application
-# Using shell form to allow environment variable expansion
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD test -f /app/app.jar || exit 1
+
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
