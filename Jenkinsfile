@@ -102,7 +102,13 @@ pipeline {
             echo "Build failed"
         }
         always {
-            cleanWs()
+            script {
+                if (env.WORKSPACE != null) {
+                    cleanWs()
+                } else {
+                    echo "No workspace to clean."
+                }
+            }
         }
     }
 }
