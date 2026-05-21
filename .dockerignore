@@ -13,7 +13,8 @@
 *.ipr
 
 # Build artifacts (we'll build inside Docker)
-target/
+target/*
+!target/*.jar
 build/
 out/
 
