@@ -5,7 +5,7 @@ pipeline {
         ECR_REPO_NAME         = 'propertyfind-backend' 
         
         // AWS specific configuration
-        AWS_REGION            = 'us-east-1' 
+        AWS_REGION            = 'eu-north-1' 
         AWS_ACCOUNT_ID        = '355353496029' 
         
         // ECS specific configuration
