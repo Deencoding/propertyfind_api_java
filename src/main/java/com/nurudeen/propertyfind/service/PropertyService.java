@@ -4,10 +4,17 @@ import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
 import com.nurudeen.propertyfind.entity.UserEntity;
+import com.nurudeen.propertyfind.exception.ResourceNotFoundException;
 import com.nurudeen.propertyfind.mappers.PropertyMapper;
 import com.nurudeen.propertyfind.repository.PropertyRepository;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
+import com.nurudeen.propertyfind.security.CustomUserPrincipal;
+import com.nurudeen.propertyfind.util.SecurityUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,12 +33,16 @@ public class PropertyService {
     }
 
     // create
-    public PropertyCreateResponseDto createProperty(Long providerId, PropertyCreateDto dto) {
+    public PropertyCreateResponseDto createProperty(PropertyCreateDto dto) {
         PropertyEntity property = propertyMapper.toEntity(dto);
+
+        Long providerId = SecurityUtils.getCurrentUser().getId();
 
         // Fetch provider
         UserEntity provider = userRepository.findById(providerId)
-                .orElseThrow(() -> new RuntimeException("Provider not found with id " + providerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Provider not found with id " + providerId));
+
+        property.setProviderId(providerId);
 
         LocalDateTime now = LocalDateTime.now();
         property.setListedDate(now);
@@ -59,7 +70,7 @@ public class PropertyService {
         List<PropertyEntity> properties = propertyRepository.findByProviderId(providerId);
 
         if (properties.isEmpty()) {
-            throw new RuntimeException("No properties found for provider with id " + providerId);
+            throw new ResourceNotFoundException("No properties found for provider with id " + providerId);
         }
 
         return properties.stream()
@@ -72,7 +83,7 @@ public class PropertyService {
     public PropertyResponseDto getPropertyById(Long id){
         return propertyRepository.findById(id)
                 .map(propertyMapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("property not found with id" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("property not found with id " + id));
     }
 
     // update
@@ -80,7 +91,9 @@ public class PropertyService {
 
         // fetch existing property
         PropertyEntity property = propertyRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("property not found with id" + id));
+                .orElseThrow(()-> new ResourceNotFoundException("property not found with id " + id));
+
+        SecurityUtils.checkAccess(property.getProviderId());
 
         // update only non-null fields from dto
         if (dto.getTitle() != null) property.setTitle(dto.getTitle());
@@ -107,11 +120,12 @@ public class PropertyService {
     // delete
     public void deleteProperty(Long id) {
         // first verify the property exists
-        propertyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Property not found with id " + id));
+        PropertyEntity property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with id " + id));
+
+        SecurityUtils.checkAccess(property.getProviderId());
 
         // delete
         propertyRepository.delete(id);
     }
-
 }

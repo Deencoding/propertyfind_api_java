@@ -9,26 +9,21 @@ import com.nurudeen.propertyfind.security.JwtService;
 import com.nurudeen.propertyfind.util.PasswordUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 
 @Service
 public class AuthService {
 
-    private final AuthenticationManager authenticationManager;
+
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RestTemplate restTemplate;
@@ -40,8 +35,10 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String clientSecret;
 
-    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, JwtService jwtService, RestTemplate restTemplate, PasswordUtils passwordUtils) {
-        this.authenticationManager = authenticationManager;
+    @Value("${app.google.redirect-uri}")
+    private String redirectUri;
+
+    public AuthService(UserRepository userRepository, JwtService jwtService, RestTemplate restTemplate, PasswordUtils passwordUtils) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.restTemplate = restTemplate;
@@ -49,18 +46,21 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto dto) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
-        );
+        UserEntity user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        UserEntity user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (user.getPassword() == null || !passwordUtils.matches(dto.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
 
         String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
         String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getId(), user.getRole().name());
 
 
+        return buildLoginResponse(user, token, refreshToken);
+    }
+
+    private LoginResponseDto buildLoginResponse(UserEntity user, String token, String refreshToken) {
         LoginResponseDto response = new LoginResponseDto();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
@@ -69,19 +69,17 @@ public class AuthService {
         response.setRegisteredDate(user.getRegisteredDate());
         response.setToken(token);
         response.setRefreshToken(refreshToken);
-
         return response;
     }
 
 
-    public Map<String, String> handleGoogleLogin(String code) {
+    public LoginResponseDto handleGoogleLogin(String code) {
         // 1. Exchange code for access token
         MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
         tokenRequest.add("code", code);
         tokenRequest.add("client_id", clientId);
         tokenRequest.add("client_secret", clientSecret);
-        tokenRequest.add("redirect_uri", """
-                http://localhost:8080/api/auth/google/callback""");
+        tokenRequest.add("redirect_uri", redirectUri);
         tokenRequest.add("grant_type", "authorization_code");
 
         HttpHeaders headers = new HttpHeaders();
@@ -113,7 +111,7 @@ public class AuthService {
                 Map.class
         );
 
-        Map<String, Object> userInfo = userInfoResponse.getBody();
+        Map userInfo = userInfoResponse.getBody();
         if (userInfo == null) {
             throw new RuntimeException("Failed to fetch user info from Google");
         }
@@ -130,7 +128,6 @@ public class AuthService {
             UserEntity newUser = new UserEntity();
             newUser.setEmail(email);
             newUser.setFullName(name);
-            newUser.setPassword(passwordUtils.hashPassword(UUID.randomUUID().toString()));
             newUser.setRole(UserEnum.HOME_SEEKER);
             newUser.setRegisteredDate(LocalDateTime.now());
             newUser.setUpdatedAt(LocalDateTime.now());
@@ -142,13 +139,7 @@ public class AuthService {
         String accessToken = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
         String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getId(), user.getRole().name());
 
-        // 5. Return both tokens
-        Map<String, String> response = new HashMap<>();
-        response.put("accessToken", accessToken);
-        response.put("refreshToken", refreshToken);
-        response.put("email", user.getEmail());
-        response.put("fullName", user.getFullName());
-
-        return response;
+        // 5. Return standardized login response
+        return buildLoginResponse(user, accessToken, refreshToken);
     }
 }

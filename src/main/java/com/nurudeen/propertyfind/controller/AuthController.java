@@ -2,12 +2,14 @@ package com.nurudeen.propertyfind.controller;
 
 import com.nurudeen.propertyfind.dto.auth.LoginRequestDto;
 import com.nurudeen.propertyfind.dto.auth.LoginResponseDto;
+import com.nurudeen.propertyfind.dto.auth.RefreshTokenRequestDto;
+import com.nurudeen.propertyfind.dto.auth.RefreshTokenResponseDto;
 import com.nurudeen.propertyfind.dto.user.UserCreateDto;
 import com.nurudeen.propertyfind.dto.user.UserCreateResponseDto;
 import com.nurudeen.propertyfind.security.JwtService;
 import com.nurudeen.propertyfind.service.AuthService;
 import com.nurudeen.propertyfind.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,21 +32,21 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto){
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto dto){
         LoginResponseDto response = authService.login(dto);
         return ResponseEntity.ok(response);
     }
 
     // create user
     @PostMapping("/register")
-    public ResponseEntity<UserCreateResponseDto> createUser(@RequestBody UserCreateDto dto){
+    public ResponseEntity<UserCreateResponseDto> createUser(@Valid @RequestBody UserCreateDto dto){
         UserCreateResponseDto response = userService.createUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
     @GetMapping("/google/callback")
-    public ResponseEntity<?> googleCallback(@RequestParam("code") String code) {
+    public ResponseEntity<LoginResponseDto> googleCallback(@RequestParam("code") String code) {
         // Return the object directly, not its string representation
         var tokenResponse = authService.handleGoogleLogin(code);
         return ResponseEntity.ok(tokenResponse);
@@ -53,21 +55,18 @@ public class AuthController {
 
     // refresh token
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(@RequestBody Map<String, String> request) {
-        String refreshToken = request.get("refreshToken");
-        if (refreshToken == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Refresh token is missing"));
-        }
-
+    public ResponseEntity<?> refresh(@Valid @RequestBody RefreshTokenRequestDto request) {
+        String refreshToken = request.getRefreshToken();
+        
         try {
             // Validate refresh token
             String email = jwtService.extractEmail(refreshToken);
             String role = jwtService.extractRole(refreshToken);
             Long userId = jwtService.extractUserId(refreshToken);
 
-            if (!jwtService.isTokenExpired(refreshToken)) {
+            if (jwtService.isTokenExpired(refreshToken)) {
                 String newAccessToken = jwtService.generateToken(email, userId, role);
-                return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+                return ResponseEntity.ok(new RefreshTokenResponseDto(newAccessToken));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Refresh token expired"));
             }

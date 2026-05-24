@@ -2,7 +2,7 @@ package com.nurudeen.propertyfind.config;
 
 import com.nurudeen.propertyfind.security.CustomUserPrincipal;
 import com.nurudeen.propertyfind.security.JwtService;
-import com.nurudeen.propertyfind.service.MyUserDetailsService;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,11 +24,8 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final MyUserDetailsService userDetailsService;
-
-    public JwtFilter(JwtService jwtService, MyUserDetailsService userDetailsService) {
+    public JwtFilter(JwtService jwtService) {
         this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -55,17 +52,23 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Proceed only if userId is valid and user not yet authenticated
+            // Proceed only if userId is valid and user not yet authenticated
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                // Load the user by ID
-                UserDetails userDetails = userDetailsService.loadUserById(userId);
-
-
-                // Validate token using the token and username(email)
-                if (jwtService.extractRole(token) != null && jwtService.isTokenValid(token, userDetails)) {
+                // Validate token
+                if (jwtService.isTokenExpired(token)) {
+                    String email = jwtService.extractEmail(token);
                     String role = jwtService.extractRole(token);
-                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
+
+                    // Reconstruct principal entirely from token (stateless, no DB call!)
+                    com.nurudeen.propertyfind.entity.UserEntity userEntity = new com.nurudeen.propertyfind.entity.UserEntity();
+                    userEntity.setId(userId);
+                    userEntity.setEmail(email);
+                    userEntity.setRole(com.nurudeen.propertyfind.entity.UserEnum.valueOf(role));
+                    
+                    UserDetails userDetails = new CustomUserPrincipal(userEntity);
+
+                    List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails,

@@ -3,7 +3,6 @@ package com.nurudeen.propertyfind.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -88,20 +87,9 @@ public class JwtService {
                 .getBody();
     }
 
-    // Validate token
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        Long tokenUserId = extractUserId(token);
-
-        // Compare the token's userId to the one from the loaded user
-        if (userDetails instanceof CustomUserPrincipal principal) {
-            return (tokenUserId.equals(principal.getId()) && !isTokenExpired(token));
-        }
-
-        return false;
-    }
 
     public boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return !extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {

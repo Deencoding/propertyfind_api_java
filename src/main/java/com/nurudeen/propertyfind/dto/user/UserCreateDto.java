@@ -2,6 +2,7 @@ package com.nurudeen.propertyfind.dto.user;
 
 
 import com.nurudeen.propertyfind.entity.UserEnum;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -12,7 +13,7 @@ public class UserCreateDto {
     private String fullName;
 
     @NotBlank(message = "Email is required")
-    @Size(message = "Email must be valid")
+    @Email(message = "Email must be valid")
     private String email;
 
     @NotBlank(message = "Password is required")

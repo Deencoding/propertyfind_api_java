@@ -2,9 +2,10 @@ package com.nurudeen.propertyfind.controller;
 
 import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.service.PropertyService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +21,9 @@ public class PropertyController {
     }
 
     // create property
-    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
-    @PostMapping("/provider/{providerId}")
-    public ResponseEntity<PropertyCreateResponseDto> createProperty(@PathVariable Long providerId,
-                                                                    @RequestBody PropertyCreateDto dto) {
-        PropertyCreateResponseDto response = propertyService.createProperty(providerId, dto);
+    @PostMapping
+    public ResponseEntity<PropertyCreateResponseDto> createProperty(@Valid @RequestBody PropertyCreateDto dto) {
+        PropertyCreateResponseDto response = propertyService.createProperty(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(response);
     }
@@ -36,7 +35,7 @@ public class PropertyController {
     }
 
     // get all properties
-    @GetMapping("get-all-properties")
+    @GetMapping("/all")
     public ResponseEntity<List<PropertyResponseDto>> getAllProperties() {
         return ResponseEntity.ok(propertyService.getAllProperties());
     }
@@ -47,20 +46,17 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
 
-
     // update property by id
-    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
     @PutMapping("/{id}")
     public ResponseEntity<PropertyUpdateResponseDto> updateProperty(
             @PathVariable Long id,
-            @RequestBody PropertyUpdateDto dto
+            @Valid @RequestBody PropertyUpdateDto dto
     ) {
         PropertyUpdateResponseDto response = propertyService.updateProperty(id, dto);
         return ResponseEntity.ok(response);
     }
 
     // Delete property by id
-    @PreAuthorize("@propertySecurity.isOwnerOrAdmin(#id, authentication.principal.id)")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);

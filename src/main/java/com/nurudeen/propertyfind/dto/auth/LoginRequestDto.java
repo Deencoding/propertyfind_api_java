@@ -1,12 +1,13 @@
 package com.nurudeen.propertyfind.dto.auth;
 
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class LoginRequestDto {
     @NotBlank(message = "Email is required")
-    @Size(message = "Email must be valid")
+    @Email(message = "Email must be valid")
     private String email;
 
     @NotBlank(message = "Password is required")

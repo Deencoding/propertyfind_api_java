@@ -35,8 +35,7 @@ public class PropertyCreateDto {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     private BigDecimal pricePerYear;
 
-    @NotBlank(message = "Bedroom is required")
-    @Size(min = 2, max = 50, message = "Bedrooms must be between 2 and 50 characters")
+    @Min(value = 0, message = "Bedrooms cannot be negative")
     private int bedroom;
 
     @Min(value = 0, message = "Bathrooms cannot be negative")

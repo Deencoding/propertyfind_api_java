@@ -2,10 +2,18 @@ package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.user.*;
 import com.nurudeen.propertyfind.entity.UserEntity;
+import com.nurudeen.propertyfind.exception.DuplicateResourceException;
+import com.nurudeen.propertyfind.exception.ResourceNotFoundException;
 import com.nurudeen.propertyfind.mappers.UserMapper;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import com.nurudeen.propertyfind.util.PasswordUtils;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.access.AccessDeniedException;
+import com.nurudeen.propertyfind.security.CustomUserPrincipal;
+import com.nurudeen.propertyfind.util.SecurityUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,7 +35,7 @@ public class UserService {
     public UserCreateResponseDto createUser(UserCreateDto dto) {
         Optional<UserEntity> existingUser = userRepository.findByEmail(dto.getEmail());
         if (existingUser.isPresent()) {
-            throw new RuntimeException("Email already exists: " + dto.getEmail());
+            throw new DuplicateResourceException("Email already exists: " + dto.getEmail());
         }
 
         UserEntity user = userMapper.toEntity(dto);
@@ -54,21 +62,26 @@ public class UserService {
 
     // read one
     public UserResponseDto getUserById(Long id){
+        SecurityUtils.checkAccess(id);
         return userRepository.findById(id)
                 .map(userMapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("User not found with id" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
     }
 
     // update
     public UserUpdateResponseDto updateUser(Long id, UserUpdateDto dto) {
+        SecurityUtils.checkAccess(id);
         // Fetch the existing user
         UserEntity existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         // Update only non-null fields from DTO
         if (dto.getFullName() != null) existingUser.setFullName(dto.getFullName());
         if (dto.getEmail() != null) existingUser.setEmail(dto.getEmail());
-        if (dto.getPassword() != null) existingUser.setPassword(dto.getPassword());
+        if (dto.getPassword() != null) {
+            String hashed = passwordUtils.hashPassword(dto.getPassword());
+            existingUser.setPassword(hashed);
+        }
         if (dto.getPhoneNumber() != null) existingUser.setPhoneNumber(dto.getPhoneNumber());
 
         // Update the updatedAt timestamp
@@ -84,6 +97,7 @@ public class UserService {
 
     // delete
     public void deleteUser(Long id){
+        SecurityUtils.checkAccess(id);
         userRepository.delete(id);
     }
 }
