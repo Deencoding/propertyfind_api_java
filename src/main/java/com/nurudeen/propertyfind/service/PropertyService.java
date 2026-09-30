@@ -1,8 +1,10 @@
 package com.nurudeen.propertyfind.service;
 
+import com.nurudeen.propertyfind.dto.PaginatedResponseDto;
+import java.util.ArrayList;
 import com.nurudeen.propertyfind.dto.property.*;
-import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.entity.PropertyStatus;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.exception.ResourceNotFoundException;
 import com.nurudeen.propertyfind.mappers.PropertyMapper;
@@ -10,10 +12,6 @@ import com.nurudeen.propertyfind.repository.PropertyRepository;
 import com.nurudeen.propertyfind.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.access.AccessDeniedException;
-import com.nurudeen.propertyfind.security.CustomUserPrincipal;
 import com.nurudeen.propertyfind.util.SecurityUtils;
 
 import java.time.LocalDateTime;
@@ -39,10 +37,11 @@ public class PropertyService {
         Long providerId = SecurityUtils.getCurrentUser().getId();
 
         // Fetch provider
-        UserEntity provider = userRepository.findById(providerId)
+        userRepository.findById(providerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Provider not found with id " + providerId));
 
         property.setProviderId(providerId);
+        property.setStatus(PropertyStatus.AVAILABLE);
 
         LocalDateTime now = LocalDateTime.now();
         property.setListedDate(now);
@@ -117,6 +116,16 @@ public class PropertyService {
 
     }
 
+    public PropertyResponseDto updateStatus(Long id, PropertyStatusUpdateDto dto) {
+        PropertyEntity property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with id " + id));
+        SecurityUtils.checkAccess(property.getProviderId());
+        property.setStatus(dto.getStatus());
+        property.setUpdatedAt(LocalDateTime.now());
+        propertyRepository.updateStatus(property);
+        return propertyMapper.toResponse(property);
+    }
+
     // delete
     public void deleteProperty(Long id) {
         // first verify the property exists
@@ -125,7 +134,56 @@ public class PropertyService {
 
         SecurityUtils.checkAccess(property.getProviderId());
 
-        // delete
         propertyRepository.delete(id);
+    }
+
+    // search properties
+    public PaginatedResponseDto<PropertyResponseDto> searchProperties(PropertySearchDto searchDto) {
+        // Validate pagination params
+        int page = Math.max(0, searchDto.getPage());
+        int size = searchDto.getSize() > 0 ? searchDto.getSize() : 10;
+        int offset = page * size;
+        
+        long totalElements = propertyRepository.countSearch(
+            searchDto.getKeyword(), searchDto.getMinPrice(), searchDto.getMaxPrice(),
+            searchDto.getMinBedroom(), searchDto.getMinBathroom(), searchDto.getAvailable(),
+            searchDto.getCity(), searchDto.getState(), searchDto.getStatus()
+        );
+        
+        List<PropertyEntity> properties = propertyRepository.search(
+            searchDto.getKeyword(), searchDto.getMinPrice(), searchDto.getMaxPrice(),
+            searchDto.getMinBedroom(), searchDto.getMinBathroom(), searchDto.getAvailable(),
+            searchDto.getCity(), searchDto.getState(), searchDto.getStatus(),
+            size, offset, searchDto.getSortBy(), searchDto.getSortDirection()
+        );
+        
+        List<PropertyResponseDto> responseData = properties.stream()
+                .map(propertyMapper::toResponse)
+                .toList();
+                
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        boolean isLast = page >= totalPages - 1;
+        
+        return new PaginatedResponseDto<>(
+            responseData, page, size, totalElements, totalPages, isLast
+        );
+    }
+
+    public void addImageToProperty(Long id, String imageUrl) {
+        PropertyEntity property = propertyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Property not found with id " + id));
+
+        SecurityUtils.checkAccess(property.getProviderId());
+        
+        List<String> images = new ArrayList<>();
+        if (property.getImageUrls() != null) {
+            images.addAll(property.getImageUrls());
+        }
+        images.add(imageUrl);
+        property.setImageUrls(images);
+        
+        property.setUpdatedAt(LocalDateTime.now());
+        propertyRepository.update(property);
+
     }
 }

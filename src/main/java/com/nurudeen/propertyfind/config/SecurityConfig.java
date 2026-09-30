@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // login/register are public
                         .requestMatchers(HttpMethod.GET, "/api/properties/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll() // allow public access to images
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated() // all others require authentication
                 )

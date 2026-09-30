@@ -18,7 +18,7 @@ public class PropertyEntity {
     private int bathroom;
     private double area;
     private List<String> imageUrls;
-    private boolean available;
+    private PropertyStatus status = PropertyStatus.AVAILABLE;
     private LocalDateTime listedDate;
     private LocalDateTime updatedAt;
 
@@ -44,7 +44,7 @@ public class PropertyEntity {
         this.bathroom = bathroom;
         this.area = area;
         this.imageUrls = imageUrls;
-        this.available = available;
+        setAvailable(available);
         this.listedDate = listedDate;
         this.updatedAt = updatedAt;
         this.providerId = providerId;
@@ -87,8 +87,17 @@ public class PropertyEntity {
     public List<String> getImageUrls() { return imageUrls; }
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
+    public boolean isAvailable() { return status == PropertyStatus.AVAILABLE; }
+    public void setAvailable(boolean available) {
+        if (available) {
+            status = PropertyStatus.AVAILABLE;
+        } else if (status != PropertyStatus.ARCHIVED) {
+            status = PropertyStatus.RENTED;
+        }
+    }
+
+    public PropertyStatus getStatus() { return status; }
+    public void setStatus(PropertyStatus status) { this.status = status; }
 
     public LocalDateTime getListedDate() { return listedDate; }
     public void setListedDate(LocalDateTime listedDate) { this.listedDate = listedDate; }

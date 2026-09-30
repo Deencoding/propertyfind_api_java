@@ -1,5 +1,7 @@
 package com.nurudeen.propertyfind.controller;
 
+import com.nurudeen.propertyfind.dto.admin.AnalyticsDashboardResponseDto;
+import com.nurudeen.propertyfind.service.AdminAnalyticsService;
 import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 import com.nurudeen.propertyfind.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +17,11 @@ import java.util.List;
 public class AdminController {
 
    private final UserService userService;
+   private final AdminAnalyticsService adminAnalyticsService;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, AdminAnalyticsService adminAnalyticsService) {
         this.userService = userService;
+        this.adminAnalyticsService = adminAnalyticsService;
     }
 
     // get all users
@@ -27,4 +31,9 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
+    // get dashboard analytics
+    @GetMapping("/dashboard")
+    public ResponseEntity<AnalyticsDashboardResponseDto> getDashboard() {
+        return ResponseEntity.ok(adminAnalyticsService.getDashboardAnalytics());
+    }
 }

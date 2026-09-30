@@ -1,5 +1,7 @@
 package com.nurudeen.propertyfind.dto.property;
 
+import com.nurudeen.propertyfind.entity.PropertyStatus;
+
 import com.nurudeen.propertyfind.dto.user.UserResponseDto;
 
 import java.math.BigDecimal;
@@ -7,6 +9,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class PropertyResponseDto {
+
+    private PropertyStatus status;
+
+    public PropertyStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PropertyStatus status) {
+        this.status = status;
+    }
+
 
     private Long id;
     private String description;

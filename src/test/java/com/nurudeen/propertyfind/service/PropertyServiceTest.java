@@ -2,6 +2,7 @@ package com.nurudeen.propertyfind.service;
 
 import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.entity.PropertyStatus;
 import com.nurudeen.propertyfind.entity.UserEntity;
 import com.nurudeen.propertyfind.entity.UserEnum;
 import com.nurudeen.propertyfind.exception.ResourceNotFoundException;
@@ -202,5 +203,49 @@ public class PropertyServiceTest {
         // Act & Assert
         assertThrows(AccessDeniedException.class, () -> propertyService.deleteProperty(10L));
         verify(propertyRepository, never()).delete(anyLong());
+    }
+
+    @Test
+    void ownerCanChangeAllStatuses() {
+        mockSecurityContext(mockPrincipal);
+        when(propertyRepository.findById(10L)).thenReturn(Optional.of(mockProperty));
+        PropertyStatusUpdateDto dto = new PropertyStatusUpdateDto();
+        for (PropertyStatus status : PropertyStatus.values()) {
+            dto.setStatus(status);
+            propertyService.updateStatus(10L, dto);
+            assertEquals(status, mockProperty.getStatus());
+            assertEquals(status == PropertyStatus.AVAILABLE, mockProperty.isAvailable());
+            assertNotNull(mockProperty.getUpdatedAt());
+        }
+        verify(propertyRepository, times(3)).updateStatus(mockProperty);
+    }
+
+    @Test
+    void adminCanArchiveAnotherProvidersListing() {
+        mockUser.setId(2L);
+        mockUser.setRole(UserEnum.ADMIN);
+        mockSecurityContext(mockPrincipal);
+        when(propertyRepository.findById(10L)).thenReturn(Optional.of(mockProperty));
+        PropertyStatusUpdateDto dto = new PropertyStatusUpdateDto();
+        dto.setStatus(PropertyStatus.ARCHIVED);
+        propertyService.updateStatus(10L, dto);
+        verify(propertyRepository).updateStatus(mockProperty);
+    }
+
+    @Test
+    void otherUserCannotChangeStatus() {
+        mockUser.setId(2L);
+        mockSecurityContext(mockPrincipal);
+        when(propertyRepository.findById(10L)).thenReturn(Optional.of(mockProperty));
+        PropertyStatusUpdateDto dto = new PropertyStatusUpdateDto();
+        dto.setStatus(PropertyStatus.RENTED);
+        assertThrows(AccessDeniedException.class, () -> propertyService.updateStatus(10L, dto));
+        verify(propertyRepository, never()).updateStatus(any());
+    }
+
+    @Test
+    void statusUpdateOfMissingPropertyReturnsNotFound() {
+        assertThrows(ResourceNotFoundException.class,
+                () -> propertyService.updateStatus(99L, new PropertyStatusUpdateDto()));
     }
 }

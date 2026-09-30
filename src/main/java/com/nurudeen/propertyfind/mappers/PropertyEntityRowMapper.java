@@ -1,6 +1,7 @@
 package com.nurudeen.propertyfind.mappers;
 
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.entity.PropertyStatus;
 import com.nurudeen.propertyfind.util.JdbcUtils;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -26,7 +27,7 @@ public class PropertyEntityRowMapper implements RowMapper<PropertyEntity> {
         // Convert PostgreSQL array to List<String>
         property.setImageUrls(JdbcUtils.pgArrayToList(rs.getArray("image_urls")));
 
-        property.setAvailable(rs.getBoolean("available"));
+        property.setStatus(PropertyStatus.valueOf(rs.getString("status")));
         property.setListedDate(rs.getTimestamp("listedDate").toLocalDateTime());
         property.setUpdatedAt(rs.getTimestamp("updatedAt") != null ?
                 rs.getTimestamp("updatedAt").toLocalDateTime() : null);

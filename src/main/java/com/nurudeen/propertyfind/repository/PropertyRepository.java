@@ -1,6 +1,8 @@
 package com.nurudeen.propertyfind.repository;
 
+import java.math.BigDecimal;
 import com.nurudeen.propertyfind.entity.PropertyEntity;
+import com.nurudeen.propertyfind.entity.PropertyStatus;
 import com.nurudeen.propertyfind.mappers.PropertyEntityRowMapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -30,11 +32,11 @@ public class PropertyRepository {
                 INSERT INTO properties (
                     description, title, address, city, state, country,
                     price_per_year, bedroom, bathroom, area, image_urls,
-                    available, listed_date, updated_at, provider_id
+                    available, status, listed_date, updated_at, provider_id
                 ) VALUES (
                     :description, :title, :address, :city, :state, :country,
                     :pricePerYear, :bedroom, :bathroom, :area, :imageUrls,
-                    :available, :listedDate, :updatedAt, :providerId
+                    :available, :status, :listedDate, :updatedAt, :providerId
                 )
                 """;
 
@@ -55,6 +57,7 @@ public class PropertyRepository {
                 .addValue("area", property.getArea(), Types.DOUBLE)
                 .addValue("imageUrls", imageUrls, Types.ARRAY)
                 .addValue("available", property.isAvailable(), Types.BOOLEAN)
+                .addValue("status", property.getStatus().name(), Types.VARCHAR)
                 .addValue("listedDate", Timestamp.valueOf(property.getListedDate()), Types.TIMESTAMP)
                 .addValue("updatedAt", Timestamp.valueOf(property.getUpdatedAt()), Types.TIMESTAMP)
                 .addValue("providerId", property.getProviderId(), Types.BIGINT);
@@ -69,7 +72,7 @@ public class PropertyRepository {
         String sql = """
                 SELECT id, description, title, address, city, state, country,
                        price_per_year AS pricePerYear, bedroom, bathroom, area,
-                       image_urls, available, listed_date AS listedDate,
+                       image_urls, available, status, listed_date AS listedDate,
                        updated_at AS updatedAt, provider_id AS providerId
                 FROM properties
                 """;
@@ -81,7 +84,7 @@ public class PropertyRepository {
         String sql = """
                 SELECT id, description, title, address, city, state, country,
                        price_per_year AS pricePerYear, bedroom, bathroom, area,
-                       image_urls, available, listed_date AS listedDate,
+                       image_urls, available, status, listed_date AS listedDate,
                        updated_at AS updatedAt, provider_id AS providerId
                 FROM properties
                 WHERE id = :id
@@ -103,7 +106,7 @@ public class PropertyRepository {
         String sql = """
                 SELECT id, description, title, address, city, state, country,
                        price_per_year AS pricePerYear, bedroom, bathroom, area,
-                       image_urls, available, listed_date AS listedDate,
+                       image_urls, available, status, listed_date AS listedDate,
                        updated_at AS updatedAt, provider_id AS providerId
                 FROM properties
                 WHERE provider_id = :providerId
@@ -133,6 +136,7 @@ public class PropertyRepository {
                     area           = :area,
                     image_urls     = :imageUrls,
                     available      = :available,
+                    status         = :status,
                     updated_at     = :updatedAt,
                     provider_id    = :providerId
                 WHERE id = :id
@@ -155,10 +159,24 @@ public class PropertyRepository {
                 .addValue("area", property.getArea(), Types.DOUBLE)
                 .addValue("imageUrls", imageUrls, Types.ARRAY)
                 .addValue("available", property.isAvailable(), Types.BOOLEAN)
+                .addValue("status", property.getStatus().name(), Types.VARCHAR)
                 .addValue("updatedAt", Timestamp.valueOf(property.getUpdatedAt()), Types.TIMESTAMP)
                 .addValue("providerId", property.getProviderId(), Types.BIGINT)
                 .addValue("id", property.getId(), Types.BIGINT);
 
+        namedParameterJdbcTemplate.update(sql, params);
+    }
+
+    public void updateStatus(PropertyEntity property) {
+        String sql = """
+                UPDATE properties SET status = :status, available = :available, updated_at = :updatedAt
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", property.getId(), Types.BIGINT)
+                .addValue("status", property.getStatus().name(), Types.VARCHAR)
+                .addValue("available", property.isAvailable(), Types.BOOLEAN)
+                .addValue("updatedAt", Timestamp.valueOf(property.getUpdatedAt()), Types.TIMESTAMP);
         namedParameterJdbcTemplate.update(sql, params);
     }
 
@@ -170,5 +188,107 @@ public class PropertyRepository {
                 .addValue("id", id, Types.BIGINT);
 
         namedParameterJdbcTemplate.update(sql, params);
+    }
+    // Search properties with filters and pagination
+    public List<PropertyEntity> search(
+            String keyword, BigDecimal minPrice, BigDecimal maxPrice,
+            Integer minBedroom, Integer minBathroom, Boolean available,
+            String city, String state, PropertyStatus status,
+            int limit, int offset, String sortBy, String sortDirection) {
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT id, description, title, address, city, state, country,
+                       price_per_year AS pricePerYear, bedroom, bathroom, area,
+                       image_urls, available, status, listed_date AS listedDate,
+                       updated_at AS updatedAt, provider_id AS providerId
+                FROM properties
+                WHERE 1=1
+                """);
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        buildSearchCriteria(sql, params, keyword, minPrice, maxPrice, minBedroom, minBathroom, available, city, state, status);
+
+        // Add sorting (validate input to prevent SQL injection)
+        String safeSortBy = validateSortColumn(sortBy);
+        String safeDirection = sortDirection.equalsIgnoreCase("ASC") ? "ASC" : "DESC";
+        sql.append(" ORDER BY ").append(safeSortBy).append(" ").append(safeDirection);
+
+        // Add pagination
+        sql.append(" LIMIT :limit OFFSET :offset");
+        params.addValue("limit", limit);
+        params.addValue("offset", offset);
+
+        return namedParameterJdbcTemplate.query(sql.toString(), params, new PropertyEntityRowMapper());
+    }
+
+    // Count for pagination
+    public long countSearch(
+            String keyword, BigDecimal minPrice, BigDecimal maxPrice,
+            Integer minBedroom, Integer minBathroom, Boolean available,
+            String city, String state, PropertyStatus status) {
+
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM properties WHERE 1=1 ");
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        buildSearchCriteria(sql, params, keyword, minPrice, maxPrice, minBedroom, minBathroom, available, city, state, status);
+
+        Long count = namedParameterJdbcTemplate.queryForObject(sql.toString(), params, Long.class);
+        return count != null ? count : 0L;
+    }
+
+    private void buildSearchCriteria(
+            StringBuilder sql, MapSqlParameterSource params,
+            String keyword, BigDecimal minPrice, BigDecimal maxPrice,
+            Integer minBedroom, Integer minBathroom, Boolean available,
+            String city, String state, PropertyStatus status) {
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (LOWER(title) LIKE :keyword OR LOWER(description) LIKE :keyword OR LOWER(city) LIKE :keyword OR LOWER(state) LIKE :keyword OR LOWER(country) LIKE :keyword)");
+            params.addValue("keyword", "%" + keyword.toLowerCase() + "%");
+        }
+        if (minPrice != null) {
+            sql.append(" AND price_per_year >= :minPrice");
+            params.addValue("minPrice", minPrice);
+        }
+        if (maxPrice != null) {
+            sql.append(" AND price_per_year <= :maxPrice");
+            params.addValue("maxPrice", maxPrice);
+        }
+        if (minBedroom != null) {
+            sql.append(" AND bedroom >= :minBedroom");
+            params.addValue("minBedroom", minBedroom);
+        }
+        if (minBathroom != null) {
+            sql.append(" AND bathroom >= :minBathroom");
+            params.addValue("minBathroom", minBathroom);
+        }
+        if (status != null) {
+            sql.append(" AND status = :status");
+            params.addValue("status", status.name(), Types.VARCHAR);
+        }
+        if (available != null) {
+            sql.append(" AND available = :available");
+            params.addValue("available", available);
+        }
+        if (city != null && !city.trim().isEmpty()) {
+            sql.append(" AND LOWER(city) = :city");
+            params.addValue("city", city.toLowerCase());
+        }
+        if (state != null && !state.trim().isEmpty()) {
+            sql.append(" AND LOWER(state) = :state");
+            params.addValue("state", state.toLowerCase());
+        }
+    }
+
+    private String validateSortColumn(String sortBy) {
+        return switch (sortBy.toLowerCase()) {
+            case "price" -> "price_per_year";
+            case "bedroom" -> "bedroom";
+            case "bathroom" -> "bathroom";
+            case "area" -> "area";
+            case "city" -> "city";
+            case "state" -> "state";
+            case "listed_date" -> "listed_date";
+            default -> "listed_date"; // Default safe fallback
+        };
     }
 }

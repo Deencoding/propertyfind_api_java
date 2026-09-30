@@ -1,5 +1,7 @@
 package com.nurudeen.propertyfind.config;
 
+import com.nurudeen.propertyfind.entity.UserEntity;
+import com.nurudeen.propertyfind.entity.UserEnum;
 import com.nurudeen.propertyfind.security.CustomUserPrincipal;
 import com.nurudeen.propertyfind.security.JwtService;
 
@@ -61,10 +63,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     String role = jwtService.extractRole(token);
 
                     // Reconstruct principal entirely from token (stateless, no DB call!)
-                    com.nurudeen.propertyfind.entity.UserEntity userEntity = new com.nurudeen.propertyfind.entity.UserEntity();
+                    UserEntity userEntity = new UserEntity();
                     userEntity.setId(userId);
                     userEntity.setEmail(email);
-                    userEntity.setRole(com.nurudeen.propertyfind.entity.UserEnum.valueOf(role));
+                    userEntity.setRole(UserEnum.valueOf(role));
                     
                     UserDetails userDetails = new CustomUserPrincipal(userEntity);
 

@@ -1,10 +1,14 @@
 package com.nurudeen.propertyfind.controller;
 
+import com.nurudeen.propertyfind.dto.PaginatedResponseDto;
+import com.nurudeen.propertyfind.service.FileStorageService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.nurudeen.propertyfind.dto.property.*;
 import com.nurudeen.propertyfind.service.PropertyService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +19,11 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
+    private final FileStorageService fileStorageService;
 
-    public PropertyController(PropertyService propertyService) {
+    public PropertyController(PropertyService propertyService, FileStorageService fileStorageService) {
         this.propertyService = propertyService;
+        this.fileStorageService = fileStorageService;
     }
 
     // create property
@@ -56,11 +62,44 @@ public class PropertyController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<PropertyResponseDto> updateStatus(
+            @PathVariable Long id, @Valid @RequestBody PropertyStatusUpdateDto dto) {
+        return ResponseEntity.ok(propertyService.updateStatus(id, dto));
+    }
+
     // Delete property by id
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProperty(@PathVariable Long id) {
         propertyService.deleteProperty(id);
         return ResponseEntity.ok("Property deleted successfully");
+    }
+
+    // search properties
+    @PostMapping("/search")
+    public ResponseEntity<PaginatedResponseDto<PropertyResponseDto>> searchProperties(
+            @RequestBody PropertySearchDto searchDto) {
+        return ResponseEntity.ok(propertyService.searchProperties(searchDto));
+    }
+
+    // upload image for a property
+    @PostMapping("/{id}/images")
+    public ResponseEntity<String> uploadPropertyImage(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request) {
+            
+        String fileName = fileStorageService.storeFile(file);
+        
+        // Build URL
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/uploads/")
+                .path(fileName)
+                .toUriString();
+                
+        propertyService.addImageToProperty(id, fileDownloadUri);
+        
+        return ResponseEntity.ok(fileDownloadUri);
     }
 }
 
